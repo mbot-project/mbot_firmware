@@ -4,7 +4,7 @@
 typedef struct mbot_pid_cfg_t{
     float kp;
     float ki;
-    float kp;
+    float kd;
     float Tf;
 } mbot_pid_cfg_t;
 
