@@ -4,9 +4,9 @@
 #include <pico/stdlib.h>
 #include <hardware/gpio.h>
 #include "mbot.h"
-#include "odometry.h"
+#include "mbot_odometry.h"
 #include <mbot/utils/utils.h>
-#include "print_tables.h"
+#include "mbot_print.h"
 #include <mbot/defs/mbot_params.h>
 
 

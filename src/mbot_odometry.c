@@ -1,5 +1,4 @@
-#include "odometry.h"
-#include <math.h>
+#include "mbot_odometry.h"
 
 int mbot_calculate_diff_body_vel(float wheel_left_vel, float wheel_right_vel, serial_twist2D_t *mbot_vel){
     mbot_vel->vx =  DIFF_WHEEL_RADIUS * (wheel_left_vel - wheel_right_vel) / 2.0f;

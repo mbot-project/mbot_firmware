@@ -1,8 +1,9 @@
 #MBOT
 add_executable(mbot
   mbot.c
-  odometry.c
-  print_tables.c
+  mbot_controller.c
+  mbot_odometry.c
+  mbot_print.c
 )
 
 include_directories(/usr/local/include)

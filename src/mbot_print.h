@@ -2,7 +2,7 @@
 #define TABLE_GENERATOR_H
 
 /**
- * @file print_tables.h
+ * @file mbot_print.h
  * @brief Functions for generating formatted tables with integer or float data.
  */
 
