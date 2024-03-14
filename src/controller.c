@@ -2,12 +2,12 @@
 #include <rc/math/filter.h>
 
 int mbot_init_ctlr(mbot_ctlr_cfg_t ctlr_cfg){
-    left_wheel_pid = RC_FILTER_INITIALIZER;
-    right_wheel_pid = RC_FILTER_INITIALIZER;
-    back_wheel_pid = RC_FILTER_INITIALIZER;
-    mbot_vx_pid = RC_FILTER_INITIALIZER;
-    mbot_vy_pid = RC_FILTER_INITIALIZER;
-    mbot_wz_pid = RC_FILTER_INITIALIZER;
+    left_wheel_pid = rc_filter_empty();
+    right_wheel_pid = rc_filter_empty();
+    back_wheel_pid = rc_filter_empty();
+    mbot_vx_pid = rc_filter_empty();
+    mbot_vy_pid = rc_filter_empty();
+    mbot_wz_pid = rc_filter_empty();
     rc_filter_pid(&left_wheel_pid, ctlr_cfg.left.kp, ctlr_cfg.left.ki, ctlr_cfg.left.kd, ctlr_cfg.left.Tf, MAIN_LOOP_PERIOD);
     rc_filter_pid(&left_wheel_pid, ctlr_cfg.right.kp, ctlr_cfg.right.ki, ctlr_cfg.right.kd, ctlr_cfg.right.Tf, MAIN_LOOP_PERIOD);
     rc_filter_pid(&left_wheel_pid, ctlr_cfg.back.kp, ctlr_cfg.back.ki, ctlr_cfg.back.kd, ctlr_cfg.back.Tf, MAIN_LOOP_PERIOD);
