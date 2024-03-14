@@ -19,11 +19,13 @@
 #include <comms/protocol.h>
 #include <comms/listener.h>
 #include <comms/topic_data.h>
-#include <comms/mbot_channels.h>
 #include <mbot_lcm_msgs_serial.h>
 
 #include <math.h>
 #include <inttypes.h>
+
+#include "mbot_channels.h"
+
 
 #define MESSAGE_CONFIRMATION_CHANNEL "MSG_CONFIRM"
 

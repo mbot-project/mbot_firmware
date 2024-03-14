@@ -48,6 +48,10 @@ The calibration script will have saved parameters onto the Pico’s memory. We c
 ```bash
 $ sudo ./upload.sh flash build/src/mbot.uf2
 ```
+### Code Structure
+The students are required to make changes only in the `/src` directory and test the robot using scripts located in the `/python` directory or by adding their own scripts there. Everything else within the mbot_firmware is set to default and should not be directly modified by the students.
+
+More details can be found under [mbot_documentation](https://github.com/mbot-project/mbot_documentation) repository.
 
 ## MBot OMNI Usage and Features
 > The following content is legacy notes that may or may not apply to the current omni.
