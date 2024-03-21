@@ -4,6 +4,7 @@ add_executable(mbot
   mbot_controller.c
   mbot_odometry.c
   mbot_print.c
+  mbot_comms.c
 )
 
 include_directories(/usr/local/include)
