@@ -41,6 +41,11 @@ enum drive_modes{
     MODE_MBOT_VEL = 3
 };
 
+//shared functions for omni and classic
+int mbot_init_pico(void);
+int mbot_init_hardware(void);
+void print_mbot_params(const mbot_params_t* params);
+void mbot_print_state(serial_mbot_imu_t imu, serial_mbot_encoders_t encoders, serial_pose2D_t odometry, serial_mbot_motor_vel_t motor_vel);
 
 bool mbot_loop(repeating_timer_t *rt);
 void mbot_read_encoders(serial_mbot_encoders_t* encoders);

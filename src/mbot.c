@@ -172,8 +172,6 @@ int mbot_init_hardware(void){
     return MBOT_OK;
 }
 
-
-
 void mbot_print_state(serial_mbot_imu_t imu, serial_mbot_encoders_t encoders, serial_pose2D_t odometry, serial_mbot_motor_vel_t motor_vel){
     printf("\033[2J\r");
     if(global_comms_status == COMMS_OK){
