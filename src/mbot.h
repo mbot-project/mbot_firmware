@@ -14,18 +14,10 @@
 #include <mbot/imu/imu.h>
 #include <rc/math/filter.h>
 #include <rc/mpu/mpu.h>
-
-// #include <comms/common.h>
-// #include <comms/protocol.h>
-// #include <comms/listener.h>
-// #include <comms/topic_data.h>
-// #include <mbot_lcm_msgs_serial.h>
-
 #include <math.h>
 #include <inttypes.h>
 
 #include "mbot_comms.h"
-// #include "mbot_channels.h"
 
 // TODO: Decide which controller is used, open loop = 1, PID = 0
 #define OPEN_LOOP 1
