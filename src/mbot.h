@@ -34,12 +34,7 @@ static i2c_inst_t *i2c;
 // data to hold calibration coefficients
 float coeffs[12];  // 4 calibration parameters per motor 
 
-enum drive_modes{
-    MODE_MOTOR_PWM = 0,
-    MODE_MOTOR_VEL_OL = 1,
-    MODE_MOTOR_VEL_PID = 2,
-    MODE_MBOT_VEL = 3
-};
+
 
 //shared functions for omni and classic
 int mbot_init_pico(void);

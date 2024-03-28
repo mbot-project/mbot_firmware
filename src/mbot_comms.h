@@ -24,6 +24,19 @@ extern serial_mbot_motor_pwm_t mbot_motor_pwm_cmd;
 extern serial_mbot_motor_vel_t mbot_motor_vel_cmd;
 extern serial_timestamp_t mbot_received_time;
 
+enum drive_modes{
+    MODE_MOTOR_PWM = 0,
+    MODE_MOTOR_VEL_OL = 1,
+    MODE_MOTOR_VEL_PID = 2,
+    MODE_MBOT_VEL = 3
+};
+
+// variables are initialized in mbot.c
+extern uint64_t timestamp_offset;
+extern uint64_t global_utime;
+extern uint64_t global_pico_time;
+extern bool global_comms_status;
+extern int drive_mode;
 
 //callback functions
 void timestamp_cb(serial_timestamp_t *msg);

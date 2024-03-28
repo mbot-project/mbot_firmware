@@ -46,3 +46,43 @@ int mbot_init_comms(void){
     sleep_ms(500);
     return MBOT_OK;
 }
+
+void timestamp_cb(serial_timestamp_t *msg)
+{
+    global_pico_time = to_us_since_boot(get_absolute_time());
+    timestamp_offset = msg->utime - global_pico_time;
+    global_comms_status = COMMS_OK;
+}
+
+void reset_encoders_cb(serial_mbot_encoders_t *msg)
+{
+    //memcpy(&encoders, msg, sizeof(serial_mbot_encoders_t));
+    for(int i=0; i<3; i++){
+        mbot_encoder_write(i, msg->ticks[i]);
+    }
+}
+
+void reset_odometry_cb(serial_pose2D_t *msg)
+{
+    mbot_odometry.x = msg->x;
+    mbot_odometry.y = msg->y;
+    mbot_odometry.theta = msg->theta;
+}
+
+void mbot_vel_cmd_cb(serial_twist2D_t *msg)
+{
+    memcpy(&mbot_vel_cmd, msg, sizeof(serial_twist2D_t));
+    drive_mode = MODE_MBOT_VEL;
+}
+
+void mbot_motor_vel_cmd_cb(serial_mbot_motor_vel_t *msg)
+{
+    memcpy(&mbot_motor_vel_cmd, msg, sizeof(serial_mbot_motor_vel_t));
+    drive_mode = MODE_MOTOR_VEL_OL;
+}
+
+void mbot_motor_pwm_cmd_cb(serial_mbot_motor_pwm_t *msg)
+{
+    memcpy(&mbot_motor_pwm_cmd, msg, sizeof(serial_mbot_motor_pwm_t));
+    drive_mode = MODE_MOTOR_PWM;
+}

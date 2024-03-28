@@ -18,11 +18,11 @@
 #endif
 
 // Global
-static uint64_t timestamp_offset = 0;
-static uint64_t global_utime = 0;
-static uint64_t global_pico_time = 0;
-static bool global_comms_status = COMMS_ERROR; 
-static int drive_mode = 0;
+uint64_t timestamp_offset = 0;
+uint64_t global_utime = 0;
+uint64_t global_pico_time = 0;
+bool global_comms_status = COMMS_ERROR; 
+int drive_mode = 0;
 static bool running = false;
 static mbot_params_t params;
 
@@ -46,45 +46,6 @@ void print_mbot_params(const mbot_params_t* params) {
     printf("Negative Intercept: %f %f %f\n", params->itrcpt_neg[0], params->itrcpt_neg[1], params->itrcpt_neg[2]);
 }
 
-void timestamp_cb(serial_timestamp_t *msg)
-{
-    global_pico_time = to_us_since_boot(get_absolute_time());
-    timestamp_offset = msg->utime - global_pico_time;
-    global_comms_status = COMMS_OK;
-}
-
-void reset_encoders_cb(serial_mbot_encoders_t *msg)
-{
-    //memcpy(&encoders, msg, sizeof(serial_mbot_encoders_t));
-    for(int i=0; i<3; i++){
-        mbot_encoder_write(i, msg->ticks[i]);
-    }
-}
-
-void reset_odometry_cb(serial_pose2D_t *msg)
-{
-    mbot_odometry.x = msg->x;
-    mbot_odometry.y = msg->y;
-    mbot_odometry.theta = msg->theta;
-}
-
-void mbot_vel_cmd_cb(serial_twist2D_t *msg)
-{
-    memcpy(&mbot_vel_cmd, msg, sizeof(serial_twist2D_t));
-    drive_mode = MODE_MBOT_VEL;
-}
-
-void mbot_motor_vel_cmd_cb(serial_mbot_motor_vel_t *msg)
-{
-    memcpy(&mbot_motor_vel_cmd, msg, sizeof(serial_mbot_motor_vel_t));
-    drive_mode = MODE_MOTOR_VEL_OL;
-}
-
-void mbot_motor_pwm_cmd_cb(serial_mbot_motor_pwm_t *msg)
-{
-    memcpy(&mbot_motor_pwm_cmd, msg, sizeof(serial_mbot_motor_pwm_t));
-    drive_mode = MODE_MOTOR_PWM;
-}
 
 void mbot_calculate_motor_vel(serial_mbot_encoders_t encoders, serial_mbot_motor_vel_t *motor_vel){
     float conversion = (1.0 / params.gear_ratio) * (1.0 / params.encoder_resolution) * 1E6f * 2.0 * M_PI;
@@ -312,7 +273,7 @@ bool mbot_loop(repeating_timer_t *rt)
         comms_write_topic(MBOT_MOTOR_PWM, &mbot_motor_pwm);
         //uint64_t fn_run_len = to_us_since_boot(get_absolute_time()) + timestamp_offset - cur_pico_time;
     }
-    //check comms and kill motors if its been too long
+    // comparing current pico time against the last successful communication timestamp(global_pico_time)
     uint64_t timeout = to_us_since_boot(get_absolute_time()) - global_pico_time;
     if(timeout > MBOT_TIMEOUT_US){
         mbot_motor_set_duty(DIFF_MOTOR_LEFT_SLOT, 0.0);
