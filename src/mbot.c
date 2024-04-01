@@ -1,30 +1,19 @@
-/**
- * This file is the main executable for the MBot firmware.
- */
-#include <pico/stdlib.h>
-#include <hardware/gpio.h>
 #include "mbot.h"
-#include "mbot_odometry.h"
-#include <mbot/utils/utils.h>
 #include "mbot_print.h"
-#include <mbot/defs/mbot_params.h>
+#include "mbot_odometry.h"
 
-
-#define THETA "\u0398"
 #pragma pack(1)
 
 #ifndef MBOT_DRIVE_TYPE
 #error "Please define a drive type for the bot"
 #endif
 
-// Global
+// Forward declarations and global variables
 uint64_t timestamp_offset = 0;
 uint64_t global_utime = 0;
 uint64_t global_pico_time = 0;
 bool global_comms_status = COMMS_ERROR; 
 int drive_mode = 0;
-static bool running = false;
-static mbot_params_t params;
 
 mbot_bhy_data_t mbot_imu_data;
 mbot_bhy_config_t mbot_imu_config;
@@ -45,7 +34,6 @@ void print_mbot_params(const mbot_params_t* params) {
     printf("Negative Slope: %f %f %f\n", params->slope_neg[0], params->slope_neg[1], params->slope_neg[2]);
     printf("Negative Intercept: %f %f %f\n", params->itrcpt_neg[0], params->itrcpt_neg[1], params->itrcpt_neg[2]);
 }
-
 
 void mbot_calculate_motor_vel(serial_mbot_encoders_t encoders, serial_mbot_motor_vel_t *motor_vel){
     float conversion = (1.0 / params.gear_ratio) * (1.0 / params.encoder_resolution) * 1E6f * 2.0 * M_PI;
@@ -133,42 +121,6 @@ int mbot_init_hardware(void){
     return MBOT_OK;
 }
 
-void mbot_print_state(serial_mbot_imu_t imu, serial_mbot_encoders_t encoders, serial_pose2D_t odometry, serial_mbot_motor_vel_t motor_vel){
-    printf("\033[2J\r");
-    if(global_comms_status == COMMS_OK){
-        printf("| \033[32m COMMS OK \033[0m TIME: %lld |\n", global_utime);
-    }
-    else{
-        printf("| \033[31m SERIAL COMMUNICATION FAILURE\033[0m     |\n");
-    }
-    const char* imu_headings[] = {"ROLL", "PITCH", "YAW"};
-    const char* enc_headings[] = {"ENC 0", "ENC 1", "ENC 2"};
-    const char* odom_headings[] = {"X", "Y", "THETA"};
-    const char* motor_vel_headings[] = {"MOT 0", "MOT 1", "MOT 2"};
-    // we shouldn't need to do this, need to update generateTable to handle different datatypes
-    int encs[3] = {(int)encoders.ticks[0], (int)encoders.ticks[1], (int)encoders.ticks[2]};
-    char buf[1024] = {0};
-    generateTableInt(buf, 1, 3, "ENCODERS", enc_headings, encs);
-    printf("\r%s", buf);
-    
-    buf[0] = '\0';
-    generateTableFloat(buf, 1, 3, "IMU", imu_headings, imu.angles_rpy);
-    printf("\r%s", buf);
-    
-    buf[0] = '\0';
-    generateTableFloat(buf, 1, 3, "MOTOR", motor_vel_headings, motor_vel.velocity);
-    printf("\r%s", buf);
-    
-    buf[0] = '\0';
-    float odom_array[3] = {odometry.x, odometry.y, odometry.theta};
-    generateTableFloat(buf, 1, 3, "ODOMETRY", odom_headings, odom_array);
-    printf("\r%s", buf);
-
-    buf[0] = '\0';
-    generateBottomLine(buf, 3);
-    printf("\r%s\n", buf);
-}
-
 //Helper function to use slope + intercept from calibration to generate a PWM command.
 float _calibrated_pwm_from_vel_cmd(float vel_cmd, int motor_idx){
     if (vel_cmd > 0.0)
@@ -182,7 +134,6 @@ float _calibrated_pwm_from_vel_cmd(float vel_cmd, int motor_idx){
     return 0.0;
 }
 
-// TODO: this could be tied to the IMU interrupt
 bool mbot_loop(repeating_timer_t *rt)
 {
     global_utime = to_us_since_boot(get_absolute_time()) + timestamp_offset;
@@ -285,54 +236,4 @@ bool mbot_loop(repeating_timer_t *rt)
     }
 
     return true;
-}
-
-
-int main()
-{   
-    running = false;
-    mbot_init_pico();
-    mbot_init_hardware();
-    mbot_init_comms();
-    mbot_read_fram(0, sizeof(params), &params);
-    
-    //Check also that define drive type is same as FRAM drive type
-    int validate_status = validate_FRAM_data(&params);
-    if (validate_status < 0)
-    {
-        printf("Failed to validate FRAM Data! Error code: %d\n", validate_status);
-        return -1;
-    }
-
-    if(params.robot_type != MBOT_DRIVE_TYPE){
-        printf("#define type is not equal to calibration type!\n");
-        return -1;
-    }
-
-    sleep_ms(3000);
-    print_mbot_params(&params);
-    printf("Starting MBot Loop...\n");
-    repeating_timer_t loop_timer;
-    add_repeating_timer_ms(MAIN_LOOP_PERIOD * 1000, mbot_loop, NULL, &loop_timer); // 1000x to convert to ms
-    printf("Done Booting Up!\n");
-    running = true;
-    uint16_t counter = 0;
-    
-    while(running){
-        // Heartbeat
-        if(!(counter % 5)){
-            gpio_put(LED_PIN, 1);
-        }
-        else if(!(counter % 7)){
-            gpio_put(LED_PIN, 1);
-            counter = 0;
-        }
-        else{
-            gpio_put(LED_PIN, 0);
-        }
-        // Print State
-        mbot_print_state(mbot_imu, mbot_encoders, mbot_odometry, mbot_motor_vel);
-        sleep_ms(200);  
-        counter++;
-    }
 }

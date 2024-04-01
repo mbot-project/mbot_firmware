@@ -1,3 +1,9 @@
+/**
+ * @file mbot_comms.h
+ * @brief Handles communication with the MBot.
+ */
+#ifndef MBOT_COMMS_H
+#define MBOT_COMMS_H
 #include <comms/common.h>
 #include <comms/protocol.h>
 #include <comms/listener.h>
@@ -49,3 +55,5 @@ void mbot_motor_pwm_cmd_cb(serial_mbot_motor_pwm_t *msg);
 // others
 void register_topics();
 int mbot_init_comms(void);
+
+#endif /* MBOT_COMMS_H */
