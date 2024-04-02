@@ -16,8 +16,6 @@
 #include <pico/stdlib.h>
 #include <hardware/i2c.h>
 #include <mbot/defs/mbot_pins.h>
-#include <mbot/defs/mbot_params.h>
-
 #include <mbot/imu/bhy_uc_driver.h>
 #include <mbot/imu/bhy_uc_driver_config.h>
 #include <mbot/imu/bhy_uc_driver_types.h>
