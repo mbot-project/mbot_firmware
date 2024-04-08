@@ -22,11 +22,6 @@ int main()
         return -1;
     }
 
-    if(params.robot_type != MBOT_DRIVE_TYPE){
-        printf("#define type is not equal to calibration type!\n");
-        return -1;
-    }
-
     sleep_ms(3000);
     print_mbot_params(&params);
     printf("Starting MBot Loop...\n");

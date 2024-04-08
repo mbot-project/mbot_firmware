@@ -4,10 +4,6 @@
 
 #pragma pack(1)
 
-#ifndef MBOT_DRIVE_TYPE
-#error "Please define a drive type for the bot"
-#endif
-
 // Forward declarations and global variables
 uint64_t timestamp_offset = 0;
 uint64_t global_utime = 0;

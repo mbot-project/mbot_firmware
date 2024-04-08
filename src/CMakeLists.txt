@@ -11,6 +11,15 @@ function(configure_mbot target)
       rclib
       comms
     )
+
+    if(${target} STREQUAL "mbot_classic")
+        target_compile_definitions(${target} PRIVATE -DMBOT_DRIVE_TYPE=DIFFERENTIAL_DRIVE)
+    endif()
+
+    if(${target} STREQUAL "mbot_omni")
+        target_compile_definitions(${target} PRIVATE -DMBOT_DRIVE_TYPE=OMNI_120_DRIVE)
+    endif()
+        
     pico_enable_stdio_usb(${target} 1)
     pico_enable_stdio_uart(${target} 0)
     pico_add_extra_outputs(${target})
