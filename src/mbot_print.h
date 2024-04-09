@@ -10,6 +10,8 @@
 
 #include "mbot_comms.h"
 
+extern uint64_t global_utime;
+
 /**
  * @brief Generates a formatted table with integer data.
  *

@@ -39,7 +39,6 @@ enum drive_modes{
 
 // variables are initialized in mbot.c
 extern uint64_t timestamp_offset;
-extern uint64_t global_utime;
 extern uint64_t global_pico_time;
 extern bool global_comms_status;
 extern int drive_mode;
