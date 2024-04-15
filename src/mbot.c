@@ -4,7 +4,7 @@
 #pragma pack(1)
 
 mbot_bhy_data_t mbot_imu_data;
-mbot_bhy_config_t mbot_imu_config;
+
 
 void print_mbot_params(const mbot_params_t* params) {
     printf("Robot Type: %d\n", params->robot_type);
@@ -82,43 +82,3 @@ int mbot_init_pico(void){
     printf("\nMBot Booting Up!\n");
     return MBOT_OK;
 }
-
-int mbot_init_hardware(void){
-    sleep_ms(1000);
-    // Initialize Motors
-    printf("initializinging motors...\n");
-    mbot_motor_init(DIFF_MOTOR_LEFT_SLOT);
-    if(MBOT_DRIVE_TYPE == OMNI_120_DRIVE){
-        mbot_motor_init(1);
-    }
-    mbot_motor_init(DIFF_MOTOR_RIGHT_SLOT);
-    printf("initializinging encoders...\n");
-    mbot_encoder_init();
-
-    // Initialize LED
-    printf("Starting heartbeat LED...\n");
-    gpio_init(LED_PIN);
-    gpio_set_dir(LED_PIN, GPIO_OUT);
-
-    mbot_imu_config = mbot_imu_default_config();
-    mbot_imu_config.sample_rate = 200;
-    // Initialize the IMU using the Digital Motion Processor
-    printf("Initializing IMU...\n");
-    mbot_imu_init(&mbot_imu_data, mbot_imu_config);
-    mbot_init_fram();
-    return MBOT_OK;
-}
-
-//Helper function to use slope + intercept from calibration to generate a PWM command.
-float _calibrated_pwm_from_vel_cmd(float vel_cmd, int motor_idx){
-    if (vel_cmd > 0.0)
-    {
-        return (vel_cmd * params.slope_pos[motor_idx]) + params.itrcpt_pos[motor_idx];
-    }
-    else if (vel_cmd < 0.0)
-    {
-        return (vel_cmd * params.slope_neg[motor_idx]) + params.itrcpt_neg[motor_idx];
-    }
-    return 0.0;
-}
-

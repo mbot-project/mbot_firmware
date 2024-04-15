@@ -40,14 +40,11 @@ static i2c_inst_t *i2c;
 
 //shared functions for omni and classic
 int mbot_init_pico(void);
-int mbot_init_hardware(void);
 void print_mbot_params(const mbot_params_t* params);
 
 void mbot_read_encoders(serial_mbot_encoders_t* encoders);
 void mbot_read_imu(serial_mbot_imu_t *imu);
 void mbot_calculate_motor_vel(serial_mbot_encoders_t encoders, serial_mbot_motor_vel_t *motor_vel);
 
-//helper functions
-float _calibrated_pwm_from_vel_cmd(float vel_cmd, int motor_idx);
 
 #endif /* MBOT_H */
