@@ -21,6 +21,8 @@
 #include "mbot_comms.h"
 #include "mbot_odometry.h"
 
+#if CLASSIC_VERSION == 10
+/****************** CLASSIC Version 1.0*******************/
 // Hardware Parameters
 #define GEAR_RATIO              78.0
 #define ENCODER_RES             40.0 // 40.0 for ROB103 encoders
@@ -33,4 +35,10 @@
 #define DIFF_MOTOR_RIGHT_SLOT        1    // Right motor using M1 slot
 #define UNUSED_DIFF_MOTOR_SLOT       2    // defined for mbot classic, 2 means M2 slot
 
-#endif
+#elif CLASSIC_VERSION == 20
+/****************** CLASSIC Version 2.0*******************/
+
+
+#endif /*CLASSIC_VERSION*/
+
+#endif /*MBOT_CLASSIC_H*/

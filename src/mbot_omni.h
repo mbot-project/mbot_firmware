@@ -21,6 +21,8 @@
 #include "mbot_comms.h"
 #include "mbot_odometry.h"
 
+#if OMNI_VERSION == 10
+/****************** OMNI Version 1.0*******************/
 // Hardware Parameters
 #define GEAR_RATIO              78.0
 #define ENCODER_RES             40.0 // 40.0 for ROB103 encoders
@@ -35,4 +37,10 @@
 #define INV_SQRT3               5.7735026918962575E-1
 #define SQRT3                   1.732050807568877
 
-#endif
+#elif OMNI_VERSION == 20
+/****************** OMNI Version 2.0*******************/
+
+
+#endif /*OMNI_VERSION*/
+
+#endif /*MBOT_OMNI_H*/

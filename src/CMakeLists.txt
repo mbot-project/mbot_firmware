@@ -1,3 +1,14 @@
+# Manually set the mbot version
+set(OMNI_VERSION "1.0")
+set(CLASSIC_VERSION "1.0")
+
+# Remove the dot and convert to integer directly for simplicity
+string(REPLACE "." "" OMNI_VERSION_INT ${OMNI_VERSION})
+string(REPLACE "." "" CLASSIC_VERSION_INT ${CLASSIC_VERSION})
+
+add_definitions(-DOMNI_VERSION=${OMNI_VERSION_INT})
+add_definitions(-DCLASSIC_VERSION=${CLASSIC_VERSION_INT})
+
 function(configure_mbot target)
     target_link_libraries(${target}
       pico_stdlib
