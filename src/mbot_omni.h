@@ -1,5 +1,25 @@
-#include "mbot.h"
+#ifndef MBOT_OMNI_H
+#define MBOT_OMNI_H
+
+#include <pico/stdlib.h>
+#include <pico/mutex.h>
+#include <pico/time.h>
+#include <hardware/gpio.h>
+#include <mbot/motor/motor.h>
+#include <mbot/encoder/encoder.h>
+#include <mbot/motor/motor.h>
+#include <mbot/defs/mbot_pins.h>
 #include <mbot/defs/mbot_params.h>
+#include <mbot/fram/fram.h>
+#include <mbot/imu/imu.h>
+#include <mbot/utils/utils.h>
+#include <rc/math/filter.h>
+#include <rc/mpu/mpu.h>
+#include <math.h>
+#include <inttypes.h>
+#include "mbot_print.h"
+#include "mbot_comms.h"
+#include "mbot_odometry.h"
 
 // Hardware Parameters
 #define GEAR_RATIO              78.0
@@ -14,3 +34,5 @@
 #define OMNI_MOTOR_ANGLE_RGT (-5.0 * M_PI / 6.0f)    // Right wheel velocity angle (-150 degrees)
 #define INV_SQRT3               5.7735026918962575E-1
 #define SQRT3                   1.732050807568877
+
+#endif

@@ -29,7 +29,6 @@ include_directories(/usr/local/include)
 
 # MBOT Classic
 add_executable(mbot_classic
-  mbot.c
   mbot_controller.c
   mbot_odometry.c
   mbot_print.c
@@ -40,7 +39,6 @@ configure_mbot(mbot_classic)
 
 # MBOT Omni
 add_executable(mbot_omni
-  mbot.c
   mbot_controller.c
   mbot_odometry.c
   mbot_print.c
