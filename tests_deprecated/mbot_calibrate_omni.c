@@ -65,9 +65,6 @@ void least_squares_fit(float* pwms, float* speeds, int n, float* m, float* b) {
 
 void print_mbot_params_omni(const mbot_params_t* params) {
     printf("Robot Type: %d\n", params->robot_type);
-    printf("Wheel Base: %f\n", params->wheel_base_radius);
-    printf("Gear Ratio: %f\n", params->gear_ratio);
-    printf("Encoder Resolution: %f\n", params->encoder_resolution);
     printf("Motor Left: %d\n", params->mot_left);
     printf("Motor Right: %d\n", params->mot_right);
     printf("Motor Back: %d\n", params->mot_back);
@@ -82,9 +79,6 @@ void print_mbot_params_omni(const mbot_params_t* params) {
 int main() {
     mbot_params_t params;
     params.robot_type = OMNI_120_DRIVE;
-    params.gear_ratio = GEAR_RATIO;
-    params.encoder_resolution = ENCODER_RES;
-    params.wheel_base_radius = OMNI_BASE_RADIUS;
     stdio_init_all();
     sleep_ms(5000); // quick sleep so we can catch the bootup process in terminal
     printf("\n\n\nInitializing...\n");
@@ -400,7 +394,7 @@ int main() {
     float duty_right[num_points+1];
     float duty_left[num_points+1];
     float duty_back[num_points+1];
-    float conv = (2 * M_PI)/(params.gear_ratio * params.encoder_resolution);
+    float conv = (2 * M_PI)/(GEAR_RATIO * ENCODER_RES);
     printf("Measuring CCW...\n");
     mbot_encoder_read_delta(mot_right);
     mbot_encoder_read_delta(mot_left);

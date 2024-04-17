@@ -212,7 +212,7 @@ void mbot_read_imu(serial_mbot_imu_t *imu){
 
 // Converting the raw encoder ticks into actual rotational velocities in radians per second
 void mbot_calculate_motor_vel(serial_mbot_encoders_t encoders, serial_mbot_motor_vel_t *motor_vel){
-    float conversion = (1.0 / params.gear_ratio) * (1.0 / params.encoder_resolution) * 1E6f * 2.0 * M_PI;
+    float conversion = (1.0 / GEAR_RATIO) * (1.0 / ENCODER_RES) * 1E6f * 2.0 * M_PI;
     motor_vel->velocity[params.mot_left] = params.encoder_polarity[params.mot_left] * (conversion / encoders.delta_time) * encoders.delta_ticks[params.mot_left];
     motor_vel->velocity[params.mot_right] = params.encoder_polarity[params.mot_right] * (conversion / encoders.delta_time) * encoders.delta_ticks[params.mot_right];
 }
@@ -232,9 +232,6 @@ static float _calibrated_pwm_from_vel_cmd(float vel_cmd, int motor_idx){
 
 void print_mbot_params(const mbot_params_t* params) {
     printf("Robot Type: %d\n", params->robot_type);
-    printf("Wheel Base Radius: %f\n", params->wheel_base_radius);
-    printf("Gear Ratio: %f\n", params->gear_ratio);
-    printf("Encoder Resolution: %f\n", params->encoder_resolution);
     printf("Motor Left: %d\n", params->mot_left);
     printf("Motor Right: %d\n", params->mot_right);
     printf("Motor Back: %d\n", params->mot_back);

@@ -25,9 +25,6 @@ int main(){
     mbot_params_t params;
 #if MBOT_DRIVE_TYPE == DIFFERENTIAL_DRIVE
     params.robot_type = MBOT_DRIVE_TYPE;
-    params.gear_ratio = GEAR_RATIO;
-    params.encoder_resolution = ENCODER_RES;
-    params.wheel_base_radius = DIFF_BASE_RADIUS;
     params.encoder_polarity[0] = 1;
     params.encoder_polarity[2] = 1;
     params.motor_polarity[0] = 1;
@@ -45,9 +42,6 @@ int main(){
 
 #elif MBOT_DRIVE_TYPE == OMNI_120_DRIVE
     params.robot_type = OMNI_120_DRIVE;
-    params.gear_ratio = GEAR_RATIO;
-    params.encoder_resolution = ENCODER_RES;
-    params.wheel_base_radius = OMNI_BASE_RADIUS;
     params.encoder_polarity[0] = 1;
     params.encoder_polarity[1] = 1;
     params.encoder_polarity[2] = 1;

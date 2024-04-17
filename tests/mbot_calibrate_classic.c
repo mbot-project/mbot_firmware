@@ -80,9 +80,6 @@ void least_squares_fit(float* pwms, float* speeds, int n, float* m, float* b) {
 
 void print_mbot_params_dd(const mbot_params_t* params) {
     printf("Robot Type: %d\n", params->robot_type);
-    printf("Wheel Base Radius: %f\n", params->wheel_base_radius);
-    printf("Gear Ratio: %f\n", params->gear_ratio);
-    printf("Encoder Resolution: %f\n", params->encoder_resolution);
     printf("Motor Left: %d\n", params->mot_left);
     printf("Motor Right: %d\n", params->mot_right);
 
@@ -99,9 +96,6 @@ void print_mbot_params_dd(const mbot_params_t* params) {
 int main() {
     mbot_params_t params;
     params.robot_type = DIFFERENTIAL_DRIVE;
-    params.gear_ratio = GEAR_RATIO;
-    params.encoder_resolution = ENCODER_RES;
-    params.wheel_base_radius = DIFF_BASE_RADIUS;
     stdio_init_all();
     printf("\n\n\nInitializing...\n");
     bi_decl(bi_program_description("This will calibrate an MBot and print a diagnostic report"));
@@ -124,27 +118,6 @@ int main() {
     params.encoder_polarity[DIFF_MOTOR_LEFT_SLOT] = (mbot_encoder_read_count(DIFF_MOTOR_LEFT_SLOT)>0) ? 1 : -1;
     params.encoder_polarity[DIFF_MOTOR_RIGHT_SLOT] = (mbot_encoder_read_count(DIFF_MOTOR_RIGHT_SLOT)>0) ? 1 : -1;
     printf("\nENC0 POL: %d , ENC1 POL: %d\n", params.encoder_polarity[DIFF_MOTOR_LEFT_SLOT], params.encoder_polarity[DIFF_MOTOR_RIGHT_SLOT]);
-    
-    
-    // printf("\nTesting Motor Polarity...\n");
-    // mbot_imu_config = mbot_imu_default_config();
-    // mbot_imu_init(&mbot_imu_data, mbot_imu_config);
-    // float accel_x0 = 0.0;
-    // float accel_y0 = 0.0;
-    // sleep_ms(1000);
-    // for(int i=0; i<100; i++){
-    //     accel_x0 += mbot_imu_data.accel[0]/100.0;
-    //     accel_y0 += mbot_imu_data.accel[1]/100.0;
-    //     sleep_ms(20);
-    // }
-    // printf("\nTesting Motor Polarity...\n");
-    // printf("\nACCEL baseline | x0: %f y0: %f\n\n", accel_x0, accel_y0);
-
-
-    // // find motor polarity
-    // float gyro_z[4] = {0, 0, 0, 0};
-    // float accel_x[4] = {0, 0, 0, 0};
-    // float accel_y[4] = {0, 0, 0, 0};
 
     float spd = 0.4; //Motor duty used for calibration
     float motor_duties[4][2] = {
@@ -153,53 +126,6 @@ int main() {
         {spd, -spd},
         {-spd, -spd}
     };
-
-    // for (int i = 0; i < 4; i++) {
-    //     mbot_motor_set_duty(DIFF_MOTOR_LEFT_SLOT, motor_duties[i][0]);
-    //     mbot_motor_set_duty(DIFF_MOTOR_RIGHT_SLOT, motor_duties[i][1]);
-
-    //     for (int j = 0; j < 25; j++) {
-    //         gyro_z[i] += mbot_imu_data.gyro[2];
-    //         accel_x[i] += mbot_imu_data.accel[0] - accel_x0;
-    //         accel_y[i] += mbot_imu_data.accel[1] - accel_y0;
-    //         sleep_ms(20);
-    //     }
-
-    //     mbot_motor_set_duty(DIFF_MOTOR_LEFT_SLOT, 0.0);
-    //     mbot_motor_set_duty(DIFF_MOTOR_RIGHT_SLOT, 0.0);
-    //     printf("Gyro: %f , Accel X: %f , Accel Y: %f\n", gyro_z[i], accel_x[i], accel_y[i]);
-    //     sleep_ms(500);
-    // }
-    // int idx1, idx2, fwd_idx, rot_idx;
-    // find_two_smallest(gyro_z, 4, &idx1, &idx2); //Find the two segments without rotation
-    // printf("2 smallest: (%d, %d)\n", idx1, idx2);
-    // rot_idx = find_index_of_max_positive(gyro_z, 4); //Find largest positive rotation (+wz)
-
-    // if(accel_x[idx1] < 0.0){fwd_idx = idx1;}
-    // else if(accel_x[idx2] < 0.0){fwd_idx = idx2;} //Find no rotation max -x acceleration (+vx)
-    // else{printf("ERROR, No Negative Acceleration\n");}
-    // printf("rotidx, fwdidx = %d, %d\n", rot_idx, fwd_idx);
-    // switch(fwd_idx) {
-    // case 0:
-    //     params.motor_polarity[DIFF_MOTOR_LEFT_SLOT] = 1;
-    //     params.motor_polarity[DIFF_MOTOR_RIGHT_SLOT] = -1;
-    //     break;
-    // case 1:
-    //     params.motor_polarity[DIFF_MOTOR_LEFT_SLOT] = -1;
-    //     params.motor_polarity[DIFF_MOTOR_RIGHT_SLOT] = -1;
-    //     break;
-    // case 2:
-    //     params.motor_polarity[DIFF_MOTOR_LEFT_SLOT] = 1;
-    //     params.motor_polarity[DIFF_MOTOR_RIGHT_SLOT] = 1;
-    //     break;
-    // case 3:
-    //     params.motor_polarity[DIFF_MOTOR_LEFT_SLOT] = -1;
-    //     params.motor_polarity[DIFF_MOTOR_RIGHT_SLOT] = 1;
-    //     break;
-    // default:
-    //     printf("ERROR: Invalid index\n");
-    // }
-    //Adjust Polarity for positive readings
 
     params.motor_polarity[DIFF_MOTOR_LEFT_SLOT] = MOT_LEFT_POL;
     params.motor_polarity[DIFF_MOTOR_RIGHT_SLOT] = MOT_RIGHT_POL;
@@ -281,7 +207,7 @@ int main() {
     float wheel_speed_left[num_points+1];
     float duty_right[num_points+1];
     float duty_left[num_points+1];
-    float conv = (2 * M_PI)/(params.gear_ratio * params.encoder_resolution);
+    float conv = (2 * M_PI)/(GEAR_RATIO * ENCODER_RES);
     printf("Measuring CCW...\n");
     mbot_encoder_read_delta(mot_right);
     mbot_encoder_read_delta(mot_left);

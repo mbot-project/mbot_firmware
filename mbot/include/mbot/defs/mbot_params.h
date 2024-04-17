@@ -18,9 +18,6 @@
 
 typedef struct mbot_params_t{
     int robot_type;
-    float wheel_base_radius;
-    float gear_ratio;
-    float encoder_resolution;
     int mot_left;
     int mot_right;
     int mot_back;
