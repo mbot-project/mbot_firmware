@@ -28,7 +28,6 @@ int main(){
     params.gear_ratio = GEAR_RATIO;
     params.encoder_resolution = ENCODER_RES;
     params.wheel_base_radius = DIFF_BASE_RADIUS;
-    params.wheel_radius = DIFF_WHEEL_RADIUS;
     params.encoder_polarity[0] = 1;
     params.encoder_polarity[2] = 1;
     params.motor_polarity[0] = 1;
@@ -49,7 +48,6 @@ int main(){
     params.gear_ratio = GEAR_RATIO;
     params.encoder_resolution = ENCODER_RES;
     params.wheel_base_radius = OMNI_BASE_RADIUS;
-    params.wheel_radius = OMNI_WHEEL_RADIUS;
     params.encoder_polarity[0] = 1;
     params.encoder_polarity[1] = 1;
     params.encoder_polarity[2] = 1;

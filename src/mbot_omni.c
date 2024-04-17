@@ -61,9 +61,9 @@ bool mbot_loop(repeating_timer_t *rt)
             mbot_motor_pwm_cmd.pwm[params.mot_back] = _calibrated_pwm_from_vel_cmd(mbot_motor_vel_cmd.velocity[params.mot_back], params.mot_back);
         }else if(drive_mode == MODE_MBOT_VEL){
             //TODO: open loop for now - implement closed loop controller
-            mbot_motor_vel_cmd.velocity[params.mot_left] = (SQRT3 / 2.0 * mbot_vel_cmd.vx - 0.5 * mbot_vel_cmd.vy - params.wheel_base_radius * mbot_vel_cmd.wz) / params.wheel_radius;
-            mbot_motor_vel_cmd.velocity[params.mot_right] = (-SQRT3 / 2.0 * mbot_vel_cmd.vx - 0.5 * mbot_vel_cmd.vy - params.wheel_base_radius * mbot_vel_cmd.wz) / params.wheel_radius;
-            mbot_motor_vel_cmd.velocity[params.mot_back] = (mbot_vel_cmd.vy - params.wheel_base_radius * mbot_vel_cmd.wz) / params.wheel_radius;
+            mbot_motor_vel_cmd.velocity[params.mot_left] = (SQRT3 / 2.0 * mbot_vel_cmd.vx - 0.5 * mbot_vel_cmd.vy - params.wheel_base_radius * mbot_vel_cmd.wz) / OMNI_WHEEL_RADIUS;
+            mbot_motor_vel_cmd.velocity[params.mot_right] = (-SQRT3 / 2.0 * mbot_vel_cmd.vx - 0.5 * mbot_vel_cmd.vy - params.wheel_base_radius * mbot_vel_cmd.wz) / OMNI_WHEEL_RADIUS;
+            mbot_motor_vel_cmd.velocity[params.mot_back] = (mbot_vel_cmd.vy - params.wheel_base_radius * mbot_vel_cmd.wz) / OMNI_WHEEL_RADIUS;
             float vel_left_comp = params.motor_polarity[params.mot_left] * mbot_motor_vel_cmd.velocity[params.mot_left];
             float vel_right_comp = params.motor_polarity[params.mot_right] * mbot_motor_vel_cmd.velocity[params.mot_right];
             float vel_back_comp = params.motor_polarity[params.mot_back] * mbot_motor_vel_cmd.velocity[params.mot_back];
@@ -242,7 +242,6 @@ float _calibrated_pwm_from_vel_cmd(float vel_cmd, int motor_idx){
 
 void print_mbot_params(const mbot_params_t* params) {
     printf("Robot Type: %d\n", params->robot_type);
-    printf("Wheel Radius: %f\n", params->wheel_radius);
     printf("Wheel Base Radius: %f\n", params->wheel_base_radius);
     printf("Gear Ratio: %f\n", params->gear_ratio);
     printf("Encoder Resolution: %f\n", params->encoder_resolution);

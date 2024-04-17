@@ -232,7 +232,6 @@ static float _calibrated_pwm_from_vel_cmd(float vel_cmd, int motor_idx){
 
 void print_mbot_params(const mbot_params_t* params) {
     printf("Robot Type: %d\n", params->robot_type);
-    printf("Wheel Radius: %f\n", params->wheel_radius);
     printf("Wheel Base Radius: %f\n", params->wheel_base_radius);
     printf("Gear Ratio: %f\n", params->gear_ratio);
     printf("Encoder Resolution: %f\n", params->encoder_resolution);

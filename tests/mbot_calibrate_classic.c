@@ -12,6 +12,19 @@
 mbot_bhy_data_t mbot_imu_data;
 mbot_bhy_config_t mbot_imu_config;
 
+/****************** CLASSIC Version 1.0*******************/
+// Hardware Parameters
+#define GEAR_RATIO              78.0
+#define ENCODER_RES             40.0 // 40.0 for ROB103 encoders
+
+// MBot Classic Parameters
+#define DIFF_WHEEL_DIAMETER          0.0837
+#define DIFF_WHEEL_RADIUS            0.04183
+#define DIFF_BASE_RADIUS             0.07786
+#define DIFF_MOTOR_LEFT_SLOT         0    // Left motor using M0 slot
+#define DIFF_MOTOR_RIGHT_SLOT        1    // Right motor using M1 slot
+#define UNUSED_DIFF_MOTOR_SLOT       2    // defined for mbot classic, 2 means M2 slot
+
 #define MOT_LEFT_POL 1
 #define MOT_RIGHT_POL 1
 
@@ -67,7 +80,6 @@ void least_squares_fit(float* pwms, float* speeds, int n, float* m, float* b) {
 
 void print_mbot_params_dd(const mbot_params_t* params) {
     printf("Robot Type: %d\n", params->robot_type);
-    printf("Wheel Radius: %f\n", params->wheel_radius);
     printf("Wheel Base Radius: %f\n", params->wheel_base_radius);
     printf("Gear Ratio: %f\n", params->gear_ratio);
     printf("Encoder Resolution: %f\n", params->encoder_resolution);
@@ -90,7 +102,6 @@ int main() {
     params.gear_ratio = GEAR_RATIO;
     params.encoder_resolution = ENCODER_RES;
     params.wheel_base_radius = DIFF_BASE_RADIUS;
-    params.wheel_radius = DIFF_WHEEL_RADIUS;
     stdio_init_all();
     printf("\n\n\nInitializing...\n");
     bi_decl(bi_program_description("This will calibrate an MBot and print a diagnostic report"));

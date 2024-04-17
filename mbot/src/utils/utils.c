@@ -31,10 +31,6 @@ int _check_i2c0_enabled(){
 
 //Validates mbot calibration in FRAM.
 int validate_FRAM_data(mbot_params_t* params){
-    if(params->wheel_radius == 0 || params->wheel_base_radius == 0 || params->gear_ratio == 0 || params->encoder_resolution == 0){
-        //Invalid general params
-        return -1;
-    }
     for(int idx = 0; idx < 3; ++idx){
         if(params->robot_type == DIFFERENTIAL_DRIVE && idx == UNUSED_DIFF_MOTOR_SLOT){
             continue; //Don't look for slope/intercept on back wheel that doesn't exist
