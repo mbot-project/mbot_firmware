@@ -111,7 +111,7 @@ int main()
     mbot_read_fram(0, sizeof(params), &params);
     
     //Check also that define drive type is same as FRAM drive type
-    int validate_status = validate_FRAM_data(&params);
+    int validate_status = validate_mbot_classic_FRAM_data(&params);
     if (validate_status < 0)
     {
         printf("Failed to validate FRAM Data! Error code: %d\n", validate_status);
@@ -231,7 +231,6 @@ static float _calibrated_pwm_from_vel_cmd(float vel_cmd, int motor_idx){
 }
 
 void print_mbot_params(const mbot_params_t* params) {
-    printf("Robot Type: %d\n", params->robot_type);
     printf("Motor Left: %d\n", params->mot_left);
     printf("Motor Right: %d\n", params->mot_right);
     printf("Motor Back: %d\n", params->mot_back);

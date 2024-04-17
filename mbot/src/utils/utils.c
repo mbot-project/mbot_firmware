@@ -29,49 +29,77 @@ int _check_i2c0_enabled(){
     return *(volatile uint32_t*)(I2C0_BASE + 0x9C) & 1;
 }
 
-//Validates mbot calibration in FRAM.
-int validate_FRAM_data(mbot_params_t* params){
+//Validates mbot classic calibration in FRAM.
+int validate_mbot_classic_FRAM_data(mbot_params_t* params){
     for(int idx = 0; idx < 3; ++idx){
-        if(params->robot_type == DIFFERENTIAL_DRIVE && idx == UNUSED_DIFF_MOTOR_SLOT){
+        if(idx == UNUSED_DIFF_MOTOR_SLOT){
             continue; //Don't look for slope/intercept on back wheel that doesn't exist
         }
         if(params->motor_polarity[idx] != 1 && params->motor_polarity[idx] != -1){
             //Invalid motor polarity
-            return -2;
+            return -1;
         }
         if(params->encoder_polarity[idx] != 1 && params->encoder_polarity[idx] != -1){
             //Invalid encoder polarity
-            return -3;
+            return -2;
         }
-    }
-    if(params->robot_type < 1 || params->robot_type > 3){
-        //Invalid robot type
-        return -4;
     }
     if(params->mot_left > 3 || params->mot_left < 0){
         //Invalid left motor pin
-        return -5;
+        return -3;
     }
     if(params->mot_right > 3 || params->mot_right < 0){
         //Invalid right motor pin
-        return -6;
-    }
-    if(params->robot_type == OMNI_120_DRIVE){
-        if(params->mot_back > 3 || params->mot_back < 0){
-            //Invalid back motor pin
-            return -7;
-        }
+        return -4;
     }
 
     for(int idx = 0; idx < 3; ++idx){
-        if(params->robot_type == DIFFERENTIAL_DRIVE && idx == UNUSED_DIFF_MOTOR_SLOT){
+        if(idx == UNUSED_DIFF_MOTOR_SLOT){
             continue; //Don't look for slope/intercept on back wheel that doesn't exist
         }
         if(params->slope_pos[idx] <= 0 || params->itrcpt_pos[idx] < 0 || params->slope_neg[idx] <= 0 || params->itrcpt_neg[idx] > 0){
             //Invalid slope/intercept
-            return -8;
+            return -6;
         }
     }
 
     return 0;
 }
+
+//Validates mbot omni calibration in FRAM.
+int validate_mbot_omni_FRAM_data(mbot_params_t* params){
+    for(int idx = 0; idx < 3; ++idx){
+        if(params->motor_polarity[idx] != 1 && params->motor_polarity[idx] != -1){
+            //Invalid motor polarity
+            return -1;
+        }
+        if(params->encoder_polarity[idx] != 1 && params->encoder_polarity[idx] != -1){
+            //Invalid encoder polarity
+            return -2;
+        }
+    }
+    if(params->mot_left > 3 || params->mot_left < 0){
+        //Invalid left motor pin
+        return -3;
+    }
+    if(params->mot_right > 3 || params->mot_right < 0){
+        //Invalid right motor pin
+        return -4;
+    }
+    if(params->mot_back > 3 || params->mot_back < 0){
+        //Invalid back motor pin
+        return -5;
+    }
+
+    for(int idx = 0; idx < 3; ++idx){
+        if(params->slope_pos[idx] <= 0 || params->itrcpt_pos[idx] < 0 || params->slope_neg[idx] <= 0 || params->itrcpt_neg[idx] > 0){
+            //Invalid slope/intercept
+            return -6;
+        }
+    }
+
+    return 0;
+}
+
+
+

@@ -64,7 +64,6 @@ void least_squares_fit(float* pwms, float* speeds, int n, float* m, float* b) {
 }
 
 void print_mbot_params_omni(const mbot_params_t* params) {
-    printf("Robot Type: %d\n", params->robot_type);
     printf("Motor Left: %d\n", params->mot_left);
     printf("Motor Right: %d\n", params->mot_right);
     printf("Motor Back: %d\n", params->mot_back);
@@ -78,7 +77,6 @@ void print_mbot_params_omni(const mbot_params_t* params) {
 
 int main() {
     mbot_params_t params;
-    params.robot_type = OMNI_120_DRIVE;
     stdio_init_all();
     sleep_ms(5000); // quick sleep so we can catch the bootup process in terminal
     printf("\n\n\nInitializing...\n");

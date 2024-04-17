@@ -79,7 +79,6 @@ void least_squares_fit(float* pwms, float* speeds, int n, float* m, float* b) {
 }
 
 void print_mbot_params_dd(const mbot_params_t* params) {
-    printf("Robot Type: %d\n", params->robot_type);
     printf("Motor Left: %d\n", params->mot_left);
     printf("Motor Right: %d\n", params->mot_right);
 
@@ -95,7 +94,6 @@ void print_mbot_params_dd(const mbot_params_t* params) {
 
 int main() {
     mbot_params_t params;
-    params.robot_type = DIFFERENTIAL_DRIVE;
     stdio_init_all();
     printf("\n\n\nInitializing...\n");
     bi_decl(bi_program_description("This will calibrate an MBot and print a diagnostic report"));

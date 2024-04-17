@@ -24,7 +24,6 @@ int main(){
 
     mbot_params_t params;
 #if MBOT_DRIVE_TYPE == DIFFERENTIAL_DRIVE
-    params.robot_type = MBOT_DRIVE_TYPE;
     params.encoder_polarity[0] = 1;
     params.encoder_polarity[2] = 1;
     params.motor_polarity[0] = 1;
@@ -41,7 +40,6 @@ int main(){
     params.itrcpt_neg[params.mot_left] = 1;
 
 #elif MBOT_DRIVE_TYPE == OMNI_120_DRIVE
-    params.robot_type = OMNI_120_DRIVE;
     params.encoder_polarity[0] = 1;
     params.encoder_polarity[1] = 1;
     params.encoder_polarity[2] = 1;
