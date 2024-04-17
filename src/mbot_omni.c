@@ -16,13 +16,13 @@ mbot_bhy_config_t mbot_imu_config;
 mbot_bhy_data_t mbot_imu_data;
 
 // Forward declaration for internal helper function
-void mbot_read_imu(serial_mbot_imu_t *imu);
+int mbot_init_pico(void);
 int mbot_init_hardware(void);
+void mbot_read_encoders(serial_mbot_encoders_t* encoders);
+void mbot_read_imu(serial_mbot_imu_t *imu);
+void mbot_calculate_motor_vel(serial_mbot_encoders_t encoders, serial_mbot_motor_vel_t *motor_vel);
 static float _calibrated_pwm_from_vel_cmd(float vel_cmd, int motor_idx);
 void print_mbot_params(const mbot_params_t* params);
-void mbot_calculate_motor_vel(serial_mbot_encoders_t encoders, serial_mbot_motor_vel_t *motor_vel);
-int mbot_init_pico(void);
-void mbot_read_encoders(serial_mbot_encoders_t* encoders);
 
 /*********************************************************************
  * Main Control Functions
@@ -34,6 +34,7 @@ void mbot_read_encoders(serial_mbot_encoders_t* encoders);
 
 bool mbot_loop(repeating_timer_t *rt)
 {
+    // Update mbot_vel
     global_utime = to_us_since_boot(get_absolute_time()) + timestamp_offset;
     mbot_vel.utime = global_utime;
     mbot_read_encoders(&mbot_encoders);
@@ -46,8 +47,10 @@ bool mbot_loop(repeating_timer_t *rt)
                                     &mbot_vel
                                 );
 
-    mbot_calculate_odometry(mbot_vel, MAIN_LOOP_PERIOD, &mbot_odometry);
+    // Update mbot_odometry
     mbot_odometry.utime = global_utime;
+    mbot_calculate_odometry(mbot_vel, MAIN_LOOP_PERIOD, &mbot_odometry);
+
     // only run if we've got 2 way communication...
     if (global_comms_status == COMMS_OK)
     {
@@ -94,7 +97,6 @@ bool mbot_loop(repeating_timer_t *rt)
         comms_write_topic(MBOT_MOTOR_VEL, &mbot_motor_vel);
         // write the PWMs to serial
         comms_write_topic(MBOT_MOTOR_PWM, &mbot_motor_pwm);
-        //uint64_t fn_run_len = to_us_since_boot(get_absolute_time()) + timestamp_offset - cur_pico_time;
     }
     // comparing current pico time against the last successful communication timestamp(global_pico_time)
     uint64_t timeout = to_us_since_boot(get_absolute_time()) - global_pico_time;
@@ -110,7 +112,6 @@ bool mbot_loop(repeating_timer_t *rt)
 
 int main()
 {   
-    running = false;
     mbot_init_pico();
     mbot_init_hardware();
     mbot_init_comms();
@@ -131,24 +132,11 @@ int main()
     add_repeating_timer_ms(MAIN_LOOP_PERIOD * 1000, mbot_loop, NULL, &loop_timer); // 1000x to convert to ms
     printf("Done Booting Up!\n");
     running = true;
-    uint16_t counter = 0;
     
     while(running){
-        // Heartbeat
-        if(!(counter % 5)){
-            gpio_put(LED_PIN, 1);
-        }
-        else if(!(counter % 7)){
-            gpio_put(LED_PIN, 1);
-            counter = 0;
-        }
-        else{
-            gpio_put(LED_PIN, 0);
-        }
         // Print State
         mbot_print_state(mbot_imu, mbot_encoders, mbot_odometry, mbot_motor_vel);
         sleep_ms(200);  
-        counter++;
     }
 }
 
@@ -160,19 +148,6 @@ int main()
  * They are not intended for modification by students. These functions
  * provide lower-level control and utility support.
  ******************************************************/
-void mbot_read_encoders(serial_mbot_encoders_t* encoders){
-    int64_t delta_time = global_utime - encoders->utime;
-    encoders->utime = global_utime;
-    encoders->delta_time = delta_time;
-
-    encoders->ticks[params.mot_right] = mbot_encoder_read_count(params.mot_right);
-    encoders->delta_ticks[params.mot_right] = mbot_encoder_read_delta(params.mot_right);
-    encoders->ticks[params.mot_left] = mbot_encoder_read_count(params.mot_left);
-    encoders->delta_ticks[params.mot_left] = mbot_encoder_read_delta(params.mot_left);
-    encoders->ticks[params.mot_back] = mbot_encoder_read_count(params.mot_back);
-    encoders->delta_ticks[params.mot_back] = mbot_encoder_read_delta(params.mot_back);
-}
-
 int mbot_init_pico(void){
     bi_decl(bi_program_description("Firmware for the MBot Robot Control Board"));
     
@@ -186,33 +161,6 @@ int mbot_init_pico(void){
     sleep_ms(500);
     printf("\nMBot Booting Up!\n");
     return MBOT_OK;
-}
-
-void mbot_calculate_motor_vel(serial_mbot_encoders_t encoders, serial_mbot_motor_vel_t *motor_vel){
-    float conversion = (1.0 / params.gear_ratio) * (1.0 / params.encoder_resolution) * 1E6f * 2.0 * M_PI;
-    motor_vel->velocity[params.mot_left] = params.encoder_polarity[params.mot_left] * (conversion / encoders.delta_time) * encoders.delta_ticks[params.mot_left];
-    motor_vel->velocity[params.mot_back] = params.encoder_polarity[params.mot_back] * (conversion / encoders.delta_time) * encoders.delta_ticks[params.mot_back];
-    motor_vel->velocity[params.mot_right] = params.encoder_polarity[params.mot_right] * (conversion / encoders.delta_time) * encoders.delta_ticks[params.mot_right];
-}
-
-void mbot_read_imu(serial_mbot_imu_t *imu){
-    imu->utime = global_utime;
-    imu->gyro[0] = mbot_imu_data.gyro[0];
-    imu->gyro[1] = mbot_imu_data.gyro[1];
-    imu->gyro[2] = mbot_imu_data.gyro[2];
-    imu->accel[0] = mbot_imu_data.accel[0];
-    imu->accel[1] = mbot_imu_data.accel[1];
-    imu->accel[2] = mbot_imu_data.accel[2];
-    imu->mag[0] = mbot_imu_data.mag[0];
-    imu->mag[1] = mbot_imu_data.mag[1];
-    imu->mag[2] = mbot_imu_data.mag[2];
-    imu->angles_rpy[0] = mbot_imu_data.rpy[0];
-    imu->angles_rpy[1] = mbot_imu_data.rpy[1];
-    imu->angles_rpy[2] = mbot_imu_data.rpy[2];
-    imu->angles_quat[0] = mbot_imu_data.quat[0];
-    imu->angles_quat[1] = mbot_imu_data.quat[1];
-    imu->angles_quat[2] = mbot_imu_data.quat[2];
-    imu->angles_quat[3] = mbot_imu_data.quat[3];   
 }
 
 int mbot_init_hardware(void){
@@ -237,6 +185,46 @@ int mbot_init_hardware(void){
     mbot_imu_init(&mbot_imu_data, mbot_imu_config);
     mbot_init_fram();
     return MBOT_OK;
+}
+
+void mbot_read_encoders(serial_mbot_encoders_t* encoders){
+    int64_t delta_time = global_utime - encoders->utime;
+    encoders->utime = global_utime;
+    encoders->delta_time = delta_time;
+
+    encoders->ticks[params.mot_right] = mbot_encoder_read_count(params.mot_right);
+    encoders->delta_ticks[params.mot_right] = mbot_encoder_read_delta(params.mot_right);
+    encoders->ticks[params.mot_left] = mbot_encoder_read_count(params.mot_left);
+    encoders->delta_ticks[params.mot_left] = mbot_encoder_read_delta(params.mot_left);
+    encoders->ticks[params.mot_back] = mbot_encoder_read_count(params.mot_back);
+    encoders->delta_ticks[params.mot_back] = mbot_encoder_read_delta(params.mot_back);
+}
+
+void mbot_read_imu(serial_mbot_imu_t *imu){
+    imu->utime = global_utime;
+    imu->gyro[0] = mbot_imu_data.gyro[0];
+    imu->gyro[1] = mbot_imu_data.gyro[1];
+    imu->gyro[2] = mbot_imu_data.gyro[2];
+    imu->accel[0] = mbot_imu_data.accel[0];
+    imu->accel[1] = mbot_imu_data.accel[1];
+    imu->accel[2] = mbot_imu_data.accel[2];
+    imu->mag[0] = mbot_imu_data.mag[0];
+    imu->mag[1] = mbot_imu_data.mag[1];
+    imu->mag[2] = mbot_imu_data.mag[2];
+    imu->angles_rpy[0] = mbot_imu_data.rpy[0];
+    imu->angles_rpy[1] = mbot_imu_data.rpy[1];
+    imu->angles_rpy[2] = mbot_imu_data.rpy[2];
+    imu->angles_quat[0] = mbot_imu_data.quat[0];
+    imu->angles_quat[1] = mbot_imu_data.quat[1];
+    imu->angles_quat[2] = mbot_imu_data.quat[2];
+    imu->angles_quat[3] = mbot_imu_data.quat[3];   
+}
+
+void mbot_calculate_motor_vel(serial_mbot_encoders_t encoders, serial_mbot_motor_vel_t *motor_vel){
+    float conversion = (1.0 / params.gear_ratio) * (1.0 / params.encoder_resolution) * 1E6f * 2.0 * M_PI;
+    motor_vel->velocity[params.mot_left] = params.encoder_polarity[params.mot_left] * (conversion / encoders.delta_time) * encoders.delta_ticks[params.mot_left];
+    motor_vel->velocity[params.mot_back] = params.encoder_polarity[params.mot_back] * (conversion / encoders.delta_time) * encoders.delta_ticks[params.mot_back];
+    motor_vel->velocity[params.mot_right] = params.encoder_polarity[params.mot_right] * (conversion / encoders.delta_time) * encoders.delta_ticks[params.mot_right];
 }
 
 float _calibrated_pwm_from_vel_cmd(float vel_cmd, int motor_idx){

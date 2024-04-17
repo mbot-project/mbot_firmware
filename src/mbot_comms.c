@@ -48,7 +48,8 @@ int mbot_init_comms(void){
 }
 
 void timestamp_cb(serial_timestamp_t *msg)
-{
+{   
+    // msg->utime: current time in microseconds since the Unix epoch
     global_pico_time = to_us_since_boot(get_absolute_time());
     timestamp_offset = msg->utime - global_pico_time;
     global_comms_status = COMMS_OK;
