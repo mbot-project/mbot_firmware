@@ -17,9 +17,6 @@
 #define ACKERMAN_DRIVE 3
 
 typedef struct mbot_params_t{
-    int mot_left;
-    int mot_right;
-    int mot_back;
     int motor_polarity[3];
     int encoder_polarity[3];
     float slope_pos[3];

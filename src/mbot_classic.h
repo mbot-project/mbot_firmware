@@ -31,9 +31,10 @@
 #define DIFF_WHEEL_DIAMETER          0.0837
 #define DIFF_WHEEL_RADIUS            0.04183
 #define DIFF_BASE_RADIUS             0.07786
-#define DIFF_MOTOR_LEFT_SLOT         0    // Left motor using M0 slot
-#define DIFF_MOTOR_RIGHT_SLOT        1    // Right motor using M1 slot
-#define UNUSED_DIFF_MOTOR_SLOT       2    // defined for mbot classic, 2 means M2 slot
+#define MOT_R                        1   // Right motor slot
+#define MOT_L                        0   // Left motor slot
+#define MOT_UNUSED                   2 // Unused motor slot
+
 
 #elif CLASSIC_VERSION == 20
 /****************** CLASSIC Version 2.0*******************/

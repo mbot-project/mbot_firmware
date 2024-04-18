@@ -37,6 +37,10 @@
 #define INV_SQRT3               5.7735026918962575E-1
 #define SQRT3                   1.732050807568877
 
+#define MOT_R               0   // Right motor slot
+#define MOT_B               1   // Back motor slot
+#define MOT_L               2   // Left motor slot
+
 #elif OMNI_VERSION == 20
 /****************** OMNI Version 2.0*******************/
 

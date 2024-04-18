@@ -30,9 +30,9 @@ int _check_i2c0_enabled(){
 }
 
 //Validates mbot classic calibration in FRAM.
-int validate_mbot_classic_FRAM_data(mbot_params_t* params){
+int validate_mbot_classic_FRAM_data(mbot_params_t* params, int mot_left, int mot_right, int mot_unused){
     for(int idx = 0; idx < 3; ++idx){
-        if(idx == UNUSED_DIFF_MOTOR_SLOT){
+        if(idx == mot_unused){
             continue; //Don't look for slope/intercept on back wheel that doesn't exist
         }
         if(params->motor_polarity[idx] != 1 && params->motor_polarity[idx] != -1){
@@ -44,17 +44,17 @@ int validate_mbot_classic_FRAM_data(mbot_params_t* params){
             return -2;
         }
     }
-    if(params->mot_left > 3 || params->mot_left < 0){
+    if(mot_left > 3 || mot_left < 0){
         //Invalid left motor pin
         return -3;
     }
-    if(params->mot_right > 3 || params->mot_right < 0){
+    if(mot_right > 3 || mot_right < 0){
         //Invalid right motor pin
         return -4;
     }
 
     for(int idx = 0; idx < 3; ++idx){
-        if(idx == UNUSED_DIFF_MOTOR_SLOT){
+        if(idx == mot_unused){
             continue; //Don't look for slope/intercept on back wheel that doesn't exist
         }
         if(params->slope_pos[idx] <= 0 || params->itrcpt_pos[idx] < 0 || params->slope_neg[idx] <= 0 || params->itrcpt_neg[idx] > 0){
@@ -67,7 +67,7 @@ int validate_mbot_classic_FRAM_data(mbot_params_t* params){
 }
 
 //Validates mbot omni calibration in FRAM.
-int validate_mbot_omni_FRAM_data(mbot_params_t* params){
+int validate_mbot_omni_FRAM_data(mbot_params_t* params, int mot_left, int mot_right, int mot_back){
     for(int idx = 0; idx < 3; ++idx){
         if(params->motor_polarity[idx] != 1 && params->motor_polarity[idx] != -1){
             //Invalid motor polarity
@@ -78,15 +78,15 @@ int validate_mbot_omni_FRAM_data(mbot_params_t* params){
             return -2;
         }
     }
-    if(params->mot_left > 3 || params->mot_left < 0){
+    if(mot_left > 3 || mot_left < 0){
         //Invalid left motor pin
         return -3;
     }
-    if(params->mot_right > 3 || params->mot_right < 0){
+    if(mot_right > 3 || mot_right < 0){
         //Invalid right motor pin
         return -4;
     }
-    if(params->mot_back > 3 || params->mot_back < 0){
+    if(mot_back > 3 || mot_back < 0){
         //Invalid back motor pin
         return -5;
     }
