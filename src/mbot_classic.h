@@ -25,7 +25,7 @@
 /****************** CLASSIC Version 1.0*******************/
 // Hardware Parameters
 #define GEAR_RATIO              78.0
-#define ENCODER_RES             40.0 // 40.0 for ROB103 encoders
+#define ENCODER_RES             40.0 
 
 // MBot Classic Parameters
 #define DIFF_WHEEL_DIAMETER          0.0837

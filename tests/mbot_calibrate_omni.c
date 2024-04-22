@@ -15,7 +15,7 @@ mbot_bhy_config_t mbot_imu_config;
 /****************** OMNI Version 1.0*******************/
 // Hardware Parameters
 #define GEAR_RATIO              78.0
-#define ENCODER_RES             40.0 // 40.0 for ROB103 encoders
+#define ENCODER_RES             48.0 
 
 // MBot Omni Parameters
 #define OMNI_BASE_RADIUS        0.10843     // Radius of base, from center of base to middle of omni wheels
