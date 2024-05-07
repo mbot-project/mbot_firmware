@@ -65,11 +65,6 @@ void least_squares_fit(float* pwms, float* speeds, int n, float* m, float* b) {
 }
 
 void print_mbot_params_dd(const mbot_params_t* params) {
-    printf("Robot Type: %d\n", params->robot_type);
-    printf("Wheel Radius: %f\n", params->wheel_radius);
-    printf("Wheel Base Radius: %f\n", params->wheel_base_radius);
-    printf("Gear Ratio: %f\n", params->gear_ratio);
-    printf("Encoder Resolution: %f\n", params->encoder_resolution);
     printf("Motor Left: %d\n", params->mot_left);
     printf("Motor Right: %d\n", params->mot_right);
 
@@ -85,11 +80,6 @@ void print_mbot_params_dd(const mbot_params_t* params) {
 
 int main() {
     mbot_params_t params;
-    params.robot_type = DIFFERENTIAL_DRIVE;
-    params.gear_ratio = GEAR_RATIO;
-    params.encoder_resolution = ENCODER_RES;
-    params.wheel_base_radius = DIFF_BASE_RADIUS;
-    params.wheel_radius = DIFF_WHEEL_RADIUS;
     stdio_init_all();
     printf("\n\n\nInitializing...\n");
     bi_decl(bi_program_description("This will calibrate an MBot and print a diagnostic report"));
@@ -273,7 +263,7 @@ int main() {
     float wheel_speed_left[num_points+1];
     float duty_right[num_points+1];
     float duty_left[num_points+1];
-    float conv = (2 * M_PI)/(params.gear_ratio * params.encoder_resolution);
+    float conv = (2 * M_PI)/(GEAR_RATIO * ENCODER_RES);
     printf("Measuring CCW...\n");
     mbot_encoder_read_delta(mot_right);
     mbot_encoder_read_delta(mot_left);

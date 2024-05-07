@@ -1,5 +1,8 @@
 #include <mbot_lcm_msgs_serial.h>
 #include <mbot/defs/mbot_params.h>
+#include <math.h>
+#include "mbot_classic.h"
+#include "mbot_omni.h"
 
 /**
  * @brief Calculate the body velocity of a differential drive robot

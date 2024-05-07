@@ -14,7 +14,6 @@
 #include <hardware/pwm.h>
 #include <mbot/encoder/encoder.h>
 #include <mbot/defs/mbot_pins.h>
-#include <mbot/defs/mbot_params.h>
 #include "quadrature_encoder.pio.h"
 
 PIO pio;
