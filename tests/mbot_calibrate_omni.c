@@ -12,7 +12,7 @@
 mbot_bhy_data_t mbot_imu_data;
 mbot_bhy_config_t mbot_imu_config;
 
-/****************** OMNI Version 1.0*******************/
+/****************** OMNI Version 2.0*******************/
 // Hardware Parameters
 #define GEAR_RATIO              78.0
 #define ENCODER_RES             48.0 
