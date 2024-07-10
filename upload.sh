@@ -12,13 +12,19 @@ fi
 OPERATION=$1
 UF2_FILE=$2
 
-# GPIO Numbers, 
-# on Jetson, pin 7 is gpio216 and pin 11 is gpio50
-# on RPi pin 7 is gpio4, pin 11 is gpio17
-if grep -q "Raspberry Pi" /proc/device-tree/model; then
-  echo "Detected Raspberry Pi, entering $1 mode..."
+# GPIO Pin Mapping:
+# RUN (Pin 7) and LOAD (Pin 11)
+# Jetson: Pin 7 -> GPIO 216, Pin 11 -> GPIO 50
+#   Pi 4: Pin 7 -> GPIO 4, Pin 11 -> GPIO 17
+#   Pi 5: Pin 7 -> GPIO 575, Pin 11 -> GPIO 588
+if grep -q "Raspberry Pi 4" /proc/device-tree/model; then
+  echo "Detected Raspberry Pi 4, entering $1 mode..."
   BTLD_PIN=4
   RUN_PIN=17
+elif grep -q "Raspberry Pi 5" /proc/device-tree/model; then
+  echo "Detected Raspberry Pi 5, entering $1 mode..."
+  BTLD_PIN=588
+  RUN_PIN=575
 elif grep -q "NVIDIA Jetson" /proc/device-tree/model; then
   echo "Detected NVIDIA Jetson, entering $1 mode..."
   BTLD_PIN=50
