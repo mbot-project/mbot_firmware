@@ -15,7 +15,7 @@ mbot_bhy_config_t mbot_imu_config;
 /****************** CLASSIC Version 1.0*******************/
 // Hardware Parameters
 #define GEAR_RATIO              78.0
-#define ENCODER_RES             40.0 // 40.0 for ROB103 encoders
+#define ENCODER_RES             48.0 // These are the new motor/encoders for Fall 2024
 
 // MBot Classic Parameters
 #define DIFF_WHEEL_DIAMETER          0.0837
