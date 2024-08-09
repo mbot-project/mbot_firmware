@@ -9,20 +9,10 @@
 #include <mbot/fram/fram.h>
 #include <mbot/defs/mbot_params.h>
 
+#include "config/mbot_classic_config.h"
+
 mbot_bhy_data_t mbot_imu_data;
 mbot_bhy_config_t mbot_imu_config;
-
-/****************** CLASSIC Version 1.0*******************/
-// Hardware Parameters
-#define GEAR_RATIO              78.0
-#define ENCODER_RES             48.0 // For Fall 2024 updated to new motors
-
-// MBot Classic Parameters
-#define DIFF_WHEEL_DIAMETER          0.0837
-#define DIFF_WHEEL_RADIUS            0.04183
-#define DIFF_BASE_RADIUS             0.07786
-#define MOT_R               1   // Right motor slot
-#define MOT_L               0   // Left motor slot
 
 #define MOT_LEFT_POL 1
 #define MOT_RIGHT_POL 1
@@ -189,7 +179,7 @@ int main() {
     sleep_ms(500);
 
     printf("Measuring Motor Calibration...\n");
-    
+
     // Turn CCW
     int num_points = 20;
     float dt = 0.5;
@@ -201,9 +191,9 @@ int main() {
     printf("Measuring CCW...\n");
     mbot_encoder_read_delta(MOT_R);
     mbot_encoder_read_delta(MOT_L);
-    
+
     for(int i = 0; i <= num_points; i++){
-        
+
         float d = i * 1.0/(float)num_points;
         mbot_motor_set_duty(MOT_R, params.motor_polarity[MOT_R] * -d);
         mbot_motor_set_duty(MOT_L, params.motor_polarity[MOT_L] * -d);
@@ -214,12 +204,12 @@ int main() {
         wheel_speed_left[i] = conv * params.encoder_polarity[MOT_L] * mbot_encoder_read_delta(MOT_L) / dt;
         printf("duty: %f, right: %f, left: %f\n", duty_right[i], wheel_speed_right[i], wheel_speed_left[i]);
     }
-    
+
     int n = sizeof(duty_right) / sizeof(duty_right[0]);
     float m_rn, b_rn, m_ln, b_ln;
     least_squares_fit(duty_right, wheel_speed_right, n, &m_rn, &b_rn);
     least_squares_fit(duty_left, wheel_speed_left, n, &m_ln, &b_ln);
-    
+
     //slow down
 
     mbot_motor_set_duty(MOT_R, params.motor_polarity[MOT_R] * -0.8);
@@ -231,7 +221,7 @@ int main() {
     mbot_motor_set_duty(MOT_R, 0.0);
     mbot_motor_set_duty(MOT_L, 0.0);
     printf("\n\n");
-    
+
 
     //Turn CW
     sleep_ms(500);
@@ -263,7 +253,7 @@ int main() {
     float m_rp, b_rp, m_lp, b_lp;
     least_squares_fit(duty_right, wheel_speed_right, n, &m_rp, &b_rp);
     least_squares_fit(duty_left, wheel_speed_left, n, &m_lp, &b_lp);
-    
+
     params.slope_pos[MOT_R] = m_rp;
     params.slope_pos[MOT_L] = m_lp;
     params.slope_neg[MOT_R] = m_rn;
@@ -284,7 +274,7 @@ int main() {
     printf("m_ln: %f\n", m_ln);
     printf("b_ln: %f\n", b_ln);
 
-    
+
     mbot_write_fram(0, sizeof(params), &params);
     mbot_params_t written;
     mbot_read_fram(0, sizeof(written), &written);
