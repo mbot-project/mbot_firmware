@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 set(CMAKE_PROJECT_VERSION 1.0.0)
 
 # Expose the version to the source code.
-add_definitions(-DVERSION=${CMAKE_PROJECT_VERSION})
+add_definitions(-DVERSION="${CMAKE_PROJECT_VERSION}")
 
 # Add an option to toggle between CLASSIC and OMNI with CLASSIC as default
 set(MBOT_TYPE "CLASSIC" CACHE STRING "MBot type to build: CLASSIC or OMNI")
@@ -16,7 +16,7 @@ endif()
 
 message("Building code for MBot type ${MBOT_TYPE}")
 
-set(NAME_SUFFIX "")
+set(NAME_SUFFIX "_v${CMAKE_PROJECT_VERSION}")
 
 # Validate the ENC value if it is set
 if(ENC)
@@ -121,6 +121,21 @@ if(MBOT_TYPE STREQUAL "CLASSIC")
   pico_enable_stdio_uart(${MBOT_CALIBRATE_CLASSIC} 0)
   pico_add_extra_outputs(${MBOT_CALIBRATE_CLASSIC})
 
+  # Motor Test
+  add_executable(mbot_omni_motor_test
+    tests/mbot_omni_motor_test.c
+  )
+  target_link_libraries(mbot_omni_motor_test
+    pico_stdlib
+    hardware_i2c
+    hardware_pio
+    hardware_pwm
+    rclib
+  )
+  pico_enable_stdio_usb(mbot_omni_motor_test 1)
+  pico_enable_stdio_uart(mbot_omni_motor_test 0)
+  pico_add_extra_outputs(mbot_omni_motor_test)
+
 elseif(MBOT_TYPE STREQUAL "OMNI")
   # MBOT Omni
   set(MBOT_OMNI mbot_omni${NAME_SUFFIX})
@@ -149,4 +164,36 @@ elseif(MBOT_TYPE STREQUAL "OMNI")
   pico_enable_stdio_uart(${MBOT_CALIBRATE_OMNI} 0)
   pico_add_extra_outputs(${MBOT_CALIBRATE_OMNI})
 
+  # Motor Test
+  add_executable(mbot_omni_motor_test
+    tests/mbot_omni_motor_test.c
+  )
+  target_link_libraries(mbot_omni_motor_test
+    pico_stdlib
+    hardware_i2c
+    hardware_pio
+    hardware_pwm
+    rclib
+  )
+  pico_enable_stdio_usb(mbot_omni_motor_test 1)
+  pico_enable_stdio_uart(mbot_omni_motor_test 0)
+  pico_add_extra_outputs(mbot_omni_motor_test)
+
 endif()
+
+# Encoder Test - Both types.
+add_executable(mbot_encoder_test
+  tests/mbot_encoder_test.c
+)
+
+target_link_libraries(mbot_encoder_test
+  pico_stdlib
+  hardware_i2c
+  hardware_pio
+  hardware_pwm
+  rclib
+)
+
+pico_enable_stdio_usb(mbot_encoder_test 1)
+pico_enable_stdio_uart(mbot_encoder_test 0)
+pico_add_extra_outputs(mbot_encoder_test)

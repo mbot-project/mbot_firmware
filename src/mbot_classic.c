@@ -27,8 +27,8 @@ void print_mbot_params(const mbot_params_t* params);
 /*********************************************************************
  * Main Control Functions
  * ----------------------------------------------------
- * These functions are critical for MBot's operation and include the 
- * main loop and initial setup. Students may be asked to review or 
+ * These functions are critical for MBot's operation and include the
+ * main loop and initial setup. Students may be asked to review or
  * modify parts of this section depending on their assignment.
  *********************************************************************/
 
@@ -37,19 +37,19 @@ bool mbot_loop(repeating_timer_t *rt)
     // Update mbot_vel
     global_utime = to_us_since_boot(get_absolute_time()) + timestamp_offset;
     mbot_vel.utime = global_utime;
-    mbot_read_encoders(&mbot_encoders); 
+    mbot_read_encoders(&mbot_encoders);
     mbot_read_imu(&mbot_imu);
     mbot_calculate_motor_vel(mbot_encoders, &mbot_motor_vel);
-    
-    mbot_calculate_diff_body_vel(   mbot_motor_vel.velocity[MOT_L], 
-                                    mbot_motor_vel.velocity[MOT_R], 
+
+    mbot_calculate_diff_body_vel(   mbot_motor_vel.velocity[MOT_L],
+                                    mbot_motor_vel.velocity[MOT_R],
                                     &mbot_vel
                                 );
 
     // Update mbot_odometry
     mbot_odometry.utime = global_utime;
     mbot_calculate_odometry(mbot_vel, MAIN_LOOP_PERIOD, &mbot_odometry);
-    
+
     // only run if we've got 2 way communication...
     if (global_comms_status == COMMS_OK)
     {
@@ -61,7 +61,7 @@ bool mbot_loop(repeating_timer_t *rt)
             //TODO: open loop for now - implement closed loop controller
             mbot_motor_vel_cmd.velocity[MOT_L] = (mbot_vel_cmd.vx - DIFF_BASE_RADIUS * mbot_vel_cmd.wz) / DIFF_WHEEL_RADIUS;
             mbot_motor_vel_cmd.velocity[MOT_R] = (-mbot_vel_cmd.vx - DIFF_BASE_RADIUS * mbot_vel_cmd.wz) / DIFF_WHEEL_RADIUS;
-            
+
             float vel_left_comp = params.motor_polarity[MOT_L] * mbot_motor_vel_cmd.velocity[MOT_L];
             float vel_right_comp = params.motor_polarity[MOT_R] * mbot_motor_vel_cmd.velocity[MOT_R];
 
@@ -104,12 +104,16 @@ bool mbot_loop(repeating_timer_t *rt)
 }
 
 int main()
-{   
+{
+    printf("********************************\n");
+    printf("* MBot Classic Firmware v%s *\n", VERSION);
+    printf("********************************\n");
+
     mbot_init_pico();
     mbot_init_hardware();
     mbot_init_comms();
     mbot_read_fram(0, sizeof(params), &params);
-    
+
     //Check also that define drive type is same as FRAM drive type
     int validate_status = validate_mbot_classic_FRAM_data(&params, MOT_L, MOT_R, MOT_UNUSED);
     if (validate_status < 0)
@@ -125,11 +129,11 @@ int main()
     add_repeating_timer_ms(MAIN_LOOP_PERIOD * 1000, mbot_loop, NULL, &loop_timer); // 1000x to convert to ms
     printf("Done Booting Up!\n");
     running = true;
-    
+
     while(running){
         // Print State
         mbot_print_state(mbot_imu, mbot_encoders, mbot_odometry, mbot_motor_vel);
-        sleep_ms(200);  
+        sleep_ms(200);
     }
 }
 
@@ -143,13 +147,13 @@ int main()
  ******************************************************/
 int mbot_init_pico(void){
     bi_decl(bi_program_description("Firmware for the MBot Robot Control Board"));
-    
+
     // set master clock to 250MHz (if unstable set SYS_CLOCK to 125Mhz)
     if(!set_sys_clock_khz(125000, true)){
         printf("ERROR mbot_init_pico: cannot set system clock\n");
         return MBOT_ERROR;
-    }; 
-    
+    };
+
     stdio_init_all(); // enable USB serial terminal
     sleep_ms(500);
     printf("\nMBot Booting Up!\n");
@@ -207,7 +211,7 @@ void mbot_read_imu(serial_mbot_imu_t *imu){
     imu->angles_quat[0] = mbot_imu_data.quat[0];
     imu->angles_quat[1] = mbot_imu_data.quat[1];
     imu->angles_quat[2] = mbot_imu_data.quat[2];
-    imu->angles_quat[3] = mbot_imu_data.quat[3];   
+    imu->angles_quat[3] = mbot_imu_data.quat[3];
 }
 
 // Converting the raw encoder ticks into actual rotational velocities in radians per second

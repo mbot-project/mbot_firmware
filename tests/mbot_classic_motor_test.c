@@ -10,18 +10,18 @@
 #include "hardware/timer.h"
 #include <mbot/motor/motor.h>
 #include <mbot/defs/mbot_params.h>
-
+#include "config/mbot_classic_config.h"
 
 void drive_motor_up_down(int motor);
 void blink();
 
-int mbot_init_pico(void){    
+int mbot_init_pico(void){
     // set master clock to 250MHz (if unstable set SYS_CLOCK to 125Mhz)
      if(!set_sys_clock_khz(SYS_CLOCK, true)){
          printf("ERROR mbot_init_pico: cannot set system clock\n");
          return MBOT_ERROR;
-     }; 
-    
+     };
+
     stdio_init_all(); // enable USB serial terminal
     sleep_ms(500);
     printf("\nMBot Booting Up!\n");
@@ -33,44 +33,28 @@ int main() {
     mbot_init_pico();
     sleep_ms(2000);
     printf("\033[2J\r");
-    printf("***MBot Motor Test***\n");
+    printf("***MBot Classic Motor Test***\n");
     gpio_init(PICO_DEFAULT_LED_PIN);
     gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
     int freq = 5000;
-    int motor = 0;
-    // mbot_motor_init_freq(motor, 10000);
-    // blink();
-    // mbot_motor_set_duty(motor, 1.0);
-    // sleep_ms(2000);
-    // mbot_motor_set_duty(motor, 0);
-    // sleep_ms(1000);
-    // mbot_motor_set_duty(motor, -0.5);
-    // sleep_ms(2000);
-    // mbot_motor_set_duty(motor, -0);
-    // sleep_ms(500);
-    mbot_motor_init_freq(0, freq);
-    mbot_motor_init_freq(1, freq);
-    mbot_motor_init_freq(2, freq);
+
+    mbot_motor_init_freq(MOT_R, freq);
+    mbot_motor_init_freq(MOT_L, freq);
 
     blink();
-    printf("Testing motor 0...\n");
-    drive_motor_up_down(0);
-    
+    printf("Testing right motor...\n");
+    drive_motor_up_down(MOT_R);
+
     blink();
-    printf("Testing motor 1...\n");
-    drive_motor_up_down(1);
-    
-    blink();
-    printf("Testing motor 2...\n");
-    drive_motor_up_down(2);
+    printf("Testing left motor...\n");
+    drive_motor_up_down(MOT_L);
 
     blink();
     printf("Done!\n");
-    
-    mbot_motor_cleanup(0);
-    mbot_motor_cleanup(1);
-    mbot_motor_cleanup(2);
-    
+
+    mbot_motor_cleanup(MOT_R);
+    mbot_motor_cleanup(MOT_L);
+
     blink();
     return 0;
 }
