@@ -59,13 +59,13 @@ Locate the file `include/config/mbot_classic_config.h`. If you're using an offic
 ### Calibrate the MBot and flash the firmware
 Run the following command, the Pico will reboot automatically, and will then run its calibration routine right away. Allow the Pico to finish its calibration routine without interference.
 ```bash
-$ sudo ./upload.sh flash build/tests/mbot_calibrate_classic.uf2
+sudo ./upload.sh flash build/tests/mbot_calibrate_classic.uf2
 ```
 - During the calibration routine, robot should turning in counter clockwise circle first then turning clockwise. If it is not executing in this order, you might have wrong motor polarity. Modify it in the `tests/mbot_calibrate_classic.c` to be either 1 or -1. And then calibrate the mbot again.
 
 The calibration script will have saved parameters onto the Pico’s memory. We can now flash the firmware that will run on the Pico during operation.
 ```bash
-$ sudo ./upload.sh flash build/src/mbot_classic.uf2
+sudo ./upload.sh flash build/mbot_classic.uf2
 ```
 ### Test
 Use `python/mbot_move_simple.py` to send lcm velocity command to test.
@@ -80,11 +80,11 @@ Locate the file `include/config/mbot_omni_config.h`. If you're using an official
 ### Calibrate the MBot and flash the firmware
 Run the following command, the Pico will reboot automatically, and will then run its calibration routine right away. Allow the Pico to finish its calibration routine without interference.
 ```bash
-$ sudo ./upload.sh flash build/tests/mbot_calibrate_omni.uf2
+sudo ./upload.sh flash build/tests/mbot_calibrate_omni.uf2
 ```
 The calibration script will have saved parameters onto the Pico’s memory. We can now flash the firmware that will run on the Pico during operation.
 ```bash
-$ sudo ./upload.sh flash build/src/mbot_omni.uf2
+sudo ./upload.sh flash build/mbot_omni.uf2
 ```
 ### Test
 Use `python/mbot_move_simple.py` to send lcm velocity command to test.
