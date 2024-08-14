@@ -19,7 +19,7 @@
 #include <inttypes.h>
 #include "mbot_print.h"
 #include "mbot_comms.h"
-#include "mbot_odometry_omni.h"
+#include "mbot_odometry.h"
 
 #include "config/mbot_omni_config.h"
 
