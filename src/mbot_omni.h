@@ -28,5 +28,29 @@
 #define OMNI_MOTOR_ANGLE_BCK (M_PI / 2.0f)           // Back wheel velocity angle (90 degrees)
 #define OMNI_MOTOR_ANGLE_RGT (-5.0 * M_PI / 6.0f)    // Right wheel velocity angle (-150 degrees)
 #define SQRT3                   1.732050807568877
+#define INV_SQRT3               5.7735026918962575E-1
+
+/**
+ * @brief Calculate the body velocity of an omnidirectional (Kiwi) robot
+ *
+ * @param[in] wheel_left_vel  Velocity of left wheel in rad/s
+ * @param[in] wheel_right_vel Velocity of right wheelin rad/s
+ * @param[in] wheel_back_vel  Velocity of back wheel in rad/s
+ * @param[out] mbot_vel   Pointer to the structure where the calculated body velocity will be stored
+ * @return int            Returns 0 on success
+ */
+int mbot_calculate_omni_body_vel(float wheel_left_vel, float wheel_right_vel, float wheel_back_vel, serial_twist2D_t *mbot_vel);
+
+/**
+ * @brief Calculate the body velocity of an omnidirectional (Kiwi) robot using an IMU for angular velocity
+ *
+ * @param[in] wheel_left_vel  Velocity of left wheel in rad/s
+ * @param[in] wheel_right_vel Velocity of right wheelin rad/s
+ * @param[in] wheel_back_vel  Velocity of back wheel in rad/s
+ * @param[in] imu         IMU data
+ * @param[out] mbot_vel   Pointer to the structure where the calculated body velocity will be stored
+ * @return int            Returns 0 on success
+ */
+int mbot_calculate_omni_body_vel_imu(float wheel_left_vel, float wheel_right_vel, float wheel_back_vel, serial_mbot_imu_t imu, serial_twist2D_t *mbot_vel);
 
 #endif /*MBOT_OMNI_H*/

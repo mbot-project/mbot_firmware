@@ -141,7 +141,7 @@ elseif(MBOT_TYPE STREQUAL "OMNI")
   set(MBOT_OMNI mbot_omni${NAME_SUFFIX})
   add_executable(${MBOT_OMNI}
     src/mbot_controller.c
-    src/mbot_odometry_omni.c
+    src/mbot_odometry.c
     src/mbot_print.c
     src/mbot_comms.c
     src/mbot_omni.c

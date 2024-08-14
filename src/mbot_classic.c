@@ -221,6 +221,17 @@ void mbot_calculate_motor_vel(serial_mbot_encoders_t encoders, serial_mbot_motor
     motor_vel->velocity[MOT_R] = params.encoder_polarity[MOT_R] * (conversion / encoders.delta_time) * encoders.delta_ticks[MOT_R];
 }
 
+int mbot_calculate_diff_body_vel(float wheel_left_vel, float wheel_right_vel, serial_twist2D_t *mbot_vel){
+    mbot_vel->vx =  DIFF_WHEEL_RADIUS * (wheel_left_vel - wheel_right_vel) / 2.0f;
+    mbot_vel->vy = 0;
+    mbot_vel->wz =  DIFF_WHEEL_RADIUS * (-wheel_left_vel - wheel_right_vel) / (2.0f * DIFF_BASE_RADIUS);
+    return 0; // Return 0 to indicate success
+}
+
+int mbot_calculate_diff_body_vel_imu(float wheel_left_vel, float wheel_right_vel, serial_mbot_imu_t imu, serial_twist2D_t *mbot_vel){
+        return 0; // Return 0 to indicate success
+}
+
 // Use slope + intercept from calibration to generate a PWM command.
 static float _calibrated_pwm_from_vel_cmd(float vel_cmd, int motor_idx){
     if (vel_cmd > 0.0)
