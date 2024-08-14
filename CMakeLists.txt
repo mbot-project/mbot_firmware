@@ -122,26 +122,26 @@ if(MBOT_TYPE STREQUAL "CLASSIC")
   pico_add_extra_outputs(${MBOT_CALIBRATE_CLASSIC})
 
   # Motor Test
-  add_executable(mbot_omni_motor_test
-    tests/mbot_omni_motor_test.c
+  add_executable(mbot_classic_motor_test
+    tests/mbot_classic_motor_test.c
   )
-  target_link_libraries(mbot_omni_motor_test
+  target_link_libraries(mbot_classic_motor_test
     pico_stdlib
     hardware_i2c
     hardware_pio
     hardware_pwm
     rclib
   )
-  pico_enable_stdio_usb(mbot_omni_motor_test 1)
-  pico_enable_stdio_uart(mbot_omni_motor_test 0)
-  pico_add_extra_outputs(mbot_omni_motor_test)
+  pico_enable_stdio_usb(mbot_classic_motor_test 1)
+  pico_enable_stdio_uart(mbot_classic_motor_test 0)
+  pico_add_extra_outputs(mbot_classic_motor_test)
 
 elseif(MBOT_TYPE STREQUAL "OMNI")
   # MBOT Omni
   set(MBOT_OMNI mbot_omni${NAME_SUFFIX})
   add_executable(${MBOT_OMNI}
     src/mbot_controller.c
-    src/mbot_odometry.c
+    src/mbot_odometry_omni.c
     src/mbot_print.c
     src/mbot_comms.c
     src/mbot_omni.c
