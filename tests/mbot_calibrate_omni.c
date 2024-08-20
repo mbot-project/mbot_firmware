@@ -9,27 +9,11 @@
 #include <mbot/fram/fram.h>
 #include <mbot/defs/mbot_params.h>
 
+#include "config/mbot_omni_config.h"
+
 mbot_bhy_data_t mbot_imu_data;
 mbot_bhy_config_t mbot_imu_config;
 
-/****************** OMNI Version 2.0*******************/
-// Hardware Parameters
-#define GEAR_RATIO              78.0
-#define ENCODER_RES             48.0 
-
-// MBot Omni Parameters
-#define OMNI_BASE_RADIUS        0.10843     // Radius of base, from center of base to middle of omni wheels
-                                            // Base radius to outer surface on wheel is 0.1227
-#define OMNI_WHEEL_RADIUS       0.048       // 0.050 for old wheels
-#define OMNI_MOTOR_ANGLE_LFT (-M_PI / 6.0f)   // Left wheel velocity angle (-30 degrees)
-#define OMNI_MOTOR_ANGLE_BCK (M_PI / 2.0f)           // Back wheel velocity angle (90 degrees)
-#define OMNI_MOTOR_ANGLE_RGT (-5.0 * M_PI / 6.0f)    // Right wheel velocity angle (-150 degrees)
-#define INV_SQRT3               5.7735026918962575E-1
-#define SQRT3                   1.732050807568877
-
-#define MOT_R               0   // Right motor slot
-#define MOT_B               1   // Back motor slot
-#define MOT_L               2   // Left motor slot
 
 void find_two_smallest(float* arr, int size, int* idx1, int* idx2) {
     *idx1 = 0;
@@ -108,7 +92,7 @@ int main() {
     int imu_init_status = mbot_imu_init(&mbot_imu_data, mbot_imu_config);
     sleep_ms(3000);
 
-    
+
     /*************************************************
      * find encoder polarity relative to positive motor PWM
      *************************************************/
@@ -126,7 +110,7 @@ int main() {
     params.encoder_polarity[0] = (mbot_encoder_read_count(0)>0) ? 1 : -1;
     params.encoder_polarity[1] = (mbot_encoder_read_count(1)>0) ? 1 : -1;
     params.encoder_polarity[2] = (mbot_encoder_read_count(2)>0) ? 1 : -1;
-    
+
     //move back to start
     mbot_motor_set_duty(0, -0.3);
     mbot_motor_set_duty(1, -0.3);
@@ -238,7 +222,7 @@ int main() {
     /*************************************************
      * find motor positions relative to IMU
      *************************************************/
-    // Now we know the polarities, we can drive pairs of motors 
+    // Now we know the polarities, we can drive pairs of motors
     // and measure the acceleration to find the placement
     // float motor_duties[3][3] = {
     //     {params.motor_polarity[0] * 0.5, params.motor_polarity[1] * -0.5, 0.0},
@@ -403,9 +387,9 @@ int main() {
     mbot_encoder_read_delta(MOT_R);
     mbot_encoder_read_delta(MOT_L);
     mbot_encoder_read_delta(MOT_B);
-    
+
     for(int i = 0; i <= num_points; i++){
-        
+
         float d = i * 1.0/(float)num_points;
         mbot_motor_set_duty(MOT_R, params.motor_polarity[MOT_R] * -d);
         mbot_motor_set_duty(MOT_L,  params.motor_polarity[MOT_L]  * -d);
@@ -419,15 +403,15 @@ int main() {
         wheel_speed_back[i] = conv * mbot_encoder_read_delta(MOT_B) / dt;
         printf("duty: %f, right: %f, left: %f, back: %f\n", duty_right[i], wheel_speed_right[i], wheel_speed_left[i], wheel_speed_back[i]);
     }
-    
+
     int n = sizeof(duty_right) / sizeof(duty_right[0]);
     float m_rn, b_rn, m_ln, b_ln, m_bn, b_bn;
     least_squares_fit(duty_right, wheel_speed_right, n, &m_rn, &b_rn);
     least_squares_fit(duty_left, wheel_speed_left, n, &m_ln, &b_ln);
     least_squares_fit(duty_back, wheel_speed_back, n, &m_bn, &b_bn);
-    
+
     //slow down
-    
+
     mbot_motor_set_duty(MOT_R, params.motor_polarity[MOT_R] * -0.8);
     mbot_motor_set_duty(MOT_L, params.motor_polarity[MOT_L] * -0.8);
     mbot_motor_set_duty(MOT_B, params.motor_polarity[MOT_B] * -0.8);
@@ -440,7 +424,7 @@ int main() {
     mbot_motor_set_duty(MOT_L, 0.0);
     mbot_motor_set_duty(MOT_B, 0.0);
     printf("\n\n");
-    
+
 
     //Turn CW
     sleep_ms(500);
@@ -448,9 +432,9 @@ int main() {
     mbot_encoder_read_delta(MOT_R);
     mbot_encoder_read_delta(MOT_L);
     mbot_encoder_read_delta(MOT_B);
-    
+
     for(int i = 0; i <= num_points; i++){
-        
+
         float d = i * 1.0/(float)num_points;
         mbot_motor_set_duty(MOT_R, params.motor_polarity[MOT_R] * d);
         mbot_motor_set_duty(MOT_L, params.motor_polarity[MOT_L] * d);
@@ -466,7 +450,7 @@ int main() {
     }
 
      //slow down
-    
+
     mbot_motor_set_duty(MOT_R, params.motor_polarity[MOT_R] * 0.8);
     mbot_motor_set_duty(MOT_L, params.motor_polarity[MOT_L] * 0.8);
     mbot_motor_set_duty(MOT_B, params.motor_polarity[MOT_B] * 0.8);
@@ -484,7 +468,7 @@ int main() {
     least_squares_fit(duty_right, wheel_speed_right, n, &m_rp, &b_rp);
     least_squares_fit(duty_left, wheel_speed_left, n, &m_lp, &b_lp);
     least_squares_fit(duty_back, wheel_speed_back, n, &m_bp, &b_bp);
-    
+
     params.slope_pos[MOT_R] = m_rp;
     params.slope_pos[MOT_L] = m_lp;
     params.slope_pos[MOT_B] = m_bp;

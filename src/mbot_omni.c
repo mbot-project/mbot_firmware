@@ -27,8 +27,8 @@ void print_mbot_params(const mbot_params_t* params);
 /*********************************************************************
  * Main Control Functions
  * ----------------------------------------------------
- * These functions are critical for MBot's operation and include the 
- * main loop and initial setup. Students may be asked to review or 
+ * These functions are critical for MBot's operation and include the
+ * main loop and initial setup. Students may be asked to review or
  * modify parts of this section depending on their assignment.
  *********************************************************************/
 
@@ -41,9 +41,9 @@ bool mbot_loop(repeating_timer_t *rt)
     mbot_read_imu(&mbot_imu);
     mbot_calculate_motor_vel(mbot_encoders, &mbot_motor_vel);
 
-    mbot_calculate_omni_body_vel(   mbot_motor_vel.velocity[MOT_L], 
-                                    mbot_motor_vel.velocity[MOT_R], 
-                                    mbot_motor_vel.velocity[MOT_B], 
+    mbot_calculate_omni_body_vel(   mbot_motor_vel.velocity[MOT_L],
+                                    mbot_motor_vel.velocity[MOT_R],
+                                    mbot_motor_vel.velocity[MOT_B],
                                     &mbot_vel
                                 );
 
@@ -67,7 +67,7 @@ bool mbot_loop(repeating_timer_t *rt)
             float vel_left_comp = params.motor_polarity[MOT_L] * mbot_motor_vel_cmd.velocity[MOT_L];
             float vel_right_comp = params.motor_polarity[MOT_R] * mbot_motor_vel_cmd.velocity[MOT_R];
             float vel_back_comp = params.motor_polarity[MOT_B] * mbot_motor_vel_cmd.velocity[MOT_B];
-            
+
             mbot_motor_pwm.utime = global_utime;
             mbot_motor_pwm_cmd.pwm[MOT_R] = _calibrated_pwm_from_vel_cmd(vel_right_comp, MOT_R);
             mbot_motor_pwm_cmd.pwm[MOT_B] = _calibrated_pwm_from_vel_cmd(vel_back_comp, MOT_B);
@@ -111,12 +111,16 @@ bool mbot_loop(repeating_timer_t *rt)
 }
 
 int main()
-{   
+{
+    printf("********************************\n");
+    printf("*  MBot Omni Firmware v%s   *\n", VERSION);
+    printf("********************************\n");
+
     mbot_init_pico();
     mbot_init_hardware();
     mbot_init_comms();
     mbot_read_fram(0, sizeof(params), &params);
-    
+
     //Check also that define drive type is same as FRAM drive type
     int validate_status = validate_mbot_omni_FRAM_data(&params, MOT_L, MOT_R, MOT_B);
     if (validate_status < 0)
@@ -132,11 +136,11 @@ int main()
     add_repeating_timer_ms(MAIN_LOOP_PERIOD * 1000, mbot_loop, NULL, &loop_timer); // 1000x to convert to ms
     printf("Done Booting Up!\n");
     running = true;
-    
+
     while(running){
         // Print State
         mbot_print_state(mbot_imu, mbot_encoders, mbot_odometry, mbot_motor_vel);
-        sleep_ms(200);  
+        sleep_ms(200);
     }
 }
 
@@ -150,13 +154,13 @@ int main()
  ******************************************************/
 int mbot_init_pico(void){
     bi_decl(bi_program_description("Firmware for the MBot Robot Control Board"));
-    
+
     // set master clock to 250MHz (if unstable set SYS_CLOCK to 125Mhz)
     if(!set_sys_clock_khz(125000, true)){
         printf("ERROR mbot_init_pico: cannot set system clock\n");
         return MBOT_ERROR;
-    }; 
-    
+    };
+
     stdio_init_all(); // enable USB serial terminal
     sleep_ms(500);
     printf("\nMBot Booting Up!\n");
@@ -217,7 +221,7 @@ void mbot_read_imu(serial_mbot_imu_t *imu){
     imu->angles_quat[0] = mbot_imu_data.quat[0];
     imu->angles_quat[1] = mbot_imu_data.quat[1];
     imu->angles_quat[2] = mbot_imu_data.quat[2];
-    imu->angles_quat[3] = mbot_imu_data.quat[3];   
+    imu->angles_quat[3] = mbot_imu_data.quat[3];
 }
 
 void mbot_calculate_motor_vel(serial_mbot_encoders_t encoders, serial_mbot_motor_vel_t *motor_vel){
@@ -225,6 +229,17 @@ void mbot_calculate_motor_vel(serial_mbot_encoders_t encoders, serial_mbot_motor
     motor_vel->velocity[MOT_L] = params.encoder_polarity[MOT_L] * (conversion / encoders.delta_time) * encoders.delta_ticks[MOT_L];
     motor_vel->velocity[MOT_B] = params.encoder_polarity[MOT_B] * (conversion / encoders.delta_time) * encoders.delta_ticks[MOT_B];
     motor_vel->velocity[MOT_R] = params.encoder_polarity[MOT_R] * (conversion / encoders.delta_time) * encoders.delta_ticks[MOT_R];
+}
+
+int mbot_calculate_omni_body_vel(float wheel_left_vel, float wheel_right_vel, float wheel_back_vel, serial_twist2D_t *mbot_vel){
+    mbot_vel->vx =  OMNI_WHEEL_RADIUS * (wheel_left_vel * INV_SQRT3 - wheel_right_vel * INV_SQRT3);
+    mbot_vel->vy =  OMNI_WHEEL_RADIUS * (-wheel_left_vel / 3.0 - wheel_right_vel / 3.0 + wheel_back_vel * (2.0 / 3.0));
+    mbot_vel->wz =  OMNI_WHEEL_RADIUS * -(wheel_left_vel + wheel_right_vel + wheel_back_vel) / (3.0f * OMNI_BASE_RADIUS);
+    return 0; // Return 0 to indicate success
+}
+
+int mbot_calculate_omni_body_vel_imu(float wheel_left_vel, float wheel_right_vel, float wheel_back_vel, serial_mbot_imu_t imu, serial_twist2D_t *mbot_vel){
+    return 0; // Return 0 to indicate success
 }
 
 float _calibrated_pwm_from_vel_cmd(float vel_cmd, int motor_idx){
