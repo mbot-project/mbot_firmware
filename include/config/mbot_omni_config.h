@@ -8,7 +8,7 @@
 
 /* The user can set the encoder resolution to 20 or 48 with a CMake arg. */
 #ifdef USER_ENCODER_RES
-#define ENCODER_RES             USER_ENCODER_RES
+#define ENCODER_RES             (float)USER_ENCODER_RES
 #else
 #define ENCODER_RES             48.0  // Default encoder resolution.
 #endif   /* USER_ENCODER_RES */
@@ -18,7 +18,7 @@
                                             // Base radius to outer surface on wheel is 0.1227
 /* The user can set the wheel diameter to 101 or 96 mm with a CMake arg. */
 #ifdef USER_OMNI_WHEEL_DIAMETER
-#define OMNI_WHEEL_RADIUS       USER_OMNI_WHEEL_DIAMETER / 200.0  // Convert to radius in meters.
+#define OMNI_WHEEL_RADIUS       (float)USER_OMNI_WHEEL_DIAMETER / 2000.0  // Convert to radius in meters.
 #else
 #define OMNI_WHEEL_RADIUS       0.048       // Default wheel radius.
 #endif   /* USER_ENCODER_RES */
