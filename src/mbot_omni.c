@@ -61,12 +61,19 @@ bool mbot_loop(repeating_timer_t *rt)
             mbot_motor_pwm_cmd.pwm[MOT_B] = _calibrated_pwm_from_vel_cmd(mbot_motor_vel_cmd.velocity[MOT_B], MOT_B);
         }else if(drive_mode == MODE_MBOT_VEL){
             //TODO: open loop for now - implement closed loop controller
-            mbot_motor_vel_cmd.velocity[MOT_L] = (SQRT3 / 2.0 * mbot_vel_cmd.vx - 0.5 * mbot_vel_cmd.vy - OMNI_BASE_RADIUS * mbot_vel_cmd.wz) / OMNI_WHEEL_RADIUS;
-            mbot_motor_vel_cmd.velocity[MOT_R] = (-SQRT3 / 2.0 * mbot_vel_cmd.vx - 0.5 * mbot_vel_cmd.vy - OMNI_BASE_RADIUS * mbot_vel_cmd.wz) / OMNI_WHEEL_RADIUS;
+
+            printf("vx: %f, vy: %f, wz: %f\n", mbot_vel_cmd.vx, mbot_vel_cmd.vy, mbot_vel_cmd.wz);
+            printf("sqrt3: %f, base_radius: %f, wheel_radius: %f\n", SQRT3, OMNI_BASE_RADIUS, OMNI_WHEEL_RADIUS);
+            printf("%f\n", ( ((SQRT3 / 2.0f) * mbot_vel_cmd.vx) - (mbot_vel_cmd.vy / 2.0f) - (OMNI_BASE_RADIUS * mbot_vel_cmd.wz) ) / OMNI_WHEEL_RADIUS);
+            printf("%f\n", (-SQRT3 / 2.0f * mbot_vel_cmd.vx - 0.5f * mbot_vel_cmd.vy - OMNI_BASE_RADIUS * mbot_vel_cmd.wz) / OMNI_WHEEL_RADIUS);
+            printf("%f\n", (mbot_vel_cmd.vy - OMNI_BASE_RADIUS * mbot_vel_cmd.wz) / OMNI_WHEEL_RADIUS);
+
+            mbot_motor_vel_cmd.velocity[MOT_L] = (SQRT3 / 2.0f * mbot_vel_cmd.vx - 0.5f * mbot_vel_cmd.vy - OMNI_BASE_RADIUS * mbot_vel_cmd.wz) / OMNI_WHEEL_RADIUS;
+            mbot_motor_vel_cmd.velocity[MOT_R] = (-SQRT3 / 2.0f * mbot_vel_cmd.vx - 0.5f * mbot_vel_cmd.vy - OMNI_BASE_RADIUS * mbot_vel_cmd.wz) / OMNI_WHEEL_RADIUS;
             mbot_motor_vel_cmd.velocity[MOT_B] = (mbot_vel_cmd.vy - OMNI_BASE_RADIUS * mbot_vel_cmd.wz) / OMNI_WHEEL_RADIUS;
-            float vel_left_comp = params.motor_polarity[MOT_L] * mbot_motor_vel_cmd.velocity[MOT_L];
-            float vel_right_comp = params.motor_polarity[MOT_R] * mbot_motor_vel_cmd.velocity[MOT_R];
-            float vel_back_comp = params.motor_polarity[MOT_B] * mbot_motor_vel_cmd.velocity[MOT_B];
+            float vel_left_comp = (float)params.motor_polarity[MOT_L] * mbot_motor_vel_cmd.velocity[MOT_L];
+            float vel_right_comp = (float)params.motor_polarity[MOT_R] * mbot_motor_vel_cmd.velocity[MOT_R];
+            float vel_back_comp = (float)params.motor_polarity[MOT_B] * mbot_motor_vel_cmd.velocity[MOT_B];
 
             mbot_motor_pwm.utime = global_utime;
             mbot_motor_pwm_cmd.pwm[MOT_R] = _calibrated_pwm_from_vel_cmd(vel_right_comp, MOT_R);
@@ -139,7 +146,7 @@ int main()
 
     while(running){
         // Print State
-        mbot_print_state(mbot_imu, mbot_encoders, mbot_odometry, mbot_motor_vel);
+        // mbot_print_state(mbot_imu, mbot_encoders, mbot_odometry, mbot_motor_vel);
         sleep_ms(200);
     }
 }

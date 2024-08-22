@@ -5,9 +5,9 @@ set(CMAKE_PROJECT_VERSION 1.0.0)
 add_definitions(-DVERSION="${CMAKE_PROJECT_VERSION}")
 
 # Add an option to toggle between CLASSIC and OMNI with CLASSIC as default
-set(MBOT_TYPE "CLASSIC" CACHE STRING "MBot type to build: CLASSIC or OMNI")
-set(ENC "" CACHE STRING "Encoder resolution: 20, 40, or 48")
-set(OMNI_WHEEL_DIAMETER "" CACHE STRING "Wheel diameter for the Omni in mm: 101 or 96")
+set(MBOT_TYPE "OMNI" CACHE STRING "MBot type to build: CLASSIC or OMNI")
+set(ENC "48" CACHE STRING "Encoder resolution: 20, 40, or 48")
+set(OMNI_WHEEL_DIAMETER "96" CACHE STRING "Wheel diameter for the Omni in mm: 101 or 96")
 
 # Check that the user-defined option is either CLASSIC or OMNI
 if(NOT MBOT_TYPE STREQUAL "CLASSIC" AND NOT MBOT_TYPE STREQUAL "OMNI")
