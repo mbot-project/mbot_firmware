@@ -167,23 +167,7 @@ target_link_libraries(mbot_read_motor_adc_test
 pico_enable_stdio_usb(mbot_read_motor_adc_test 1)
 pico_enable_stdio_uart(mbot_read_motor_adc_test 0)
 pico_add_extra_outputs(mbot_read_motor_adc_test)
-
-#MOTOR-ANALYZE
-add_executable(mbot_motor_analyze
-  mbot_motor_analyze.c
-)
-target_link_libraries(mbot_motor_analyze
-  pico_stdlib
-  pico_multicore
-  hardware_pio
-  hardware_pwm
-  hardware_adc
-  rclib
-)
-pico_enable_stdio_usb(mbot_motor_analyze 1)
-pico_enable_stdio_uart(mbot_motor_analyze 0)
-pico_add_extra_outputs(mbot_motor_analyze)
-
+ 
 #mbot_calibrate_gyro
 add_executable(mbot_closed_loop_ctrler_test
   mbot_closed_loop_ctrler_test.c

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021 
+ * Copyright (c) 2021
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,10 +9,12 @@
 #include "hardware/pio.h"
 #include "hardware/timer.h"
 #include <mbot/encoder/encoder.h>
+
 #define DELTA "\u0394"
 #define PHI "\u03A6"
 #define THETA "\u0398"
 #define PSI "\u03A8"
+
 int main() {
     int d1, d2, d3, t1, t2, t3 = 0;
     mbot_encoder_init();
@@ -31,4 +33,3 @@ int main() {
         sleep_ms(100);
     }
 }
-

@@ -1,10 +1,16 @@
-#ifndef TABLE_GENERATOR_H
-#define TABLE_GENERATOR_H
-
 /**
- * @file print_tables.h
- * @brief Functions for generating formatted tables with integer or float data.
+ * @file mbot_print.h
+ * @brief Offers functions to generate and display formatted tables in the terminal for IMU readings, encoder counts,
+ * odometry, and motor velocities via a serial connection. Designed for real-time terminal updates to assist in
+ * diagnostics and monitoring of the MBot's state. Typically used with Minicom for table viewing.
  */
+
+#ifndef MBOT_PRINT_H
+#define MBOT_PRINT_H
+
+#include "mbot_comms.h"
+
+extern uint64_t global_utime;
 
 /**
  * @brief Generates a formatted table with integer data.
@@ -31,4 +37,6 @@ void generateTableInt(char* buf, int rows, int cols, const char* title, const ch
 void generateTableFloat(char* buf, int rows, int cols, const char* title, const char* headings[], float data[rows][cols]);
 
 void generateBottomLine(char* buf, int cols);
-#endif /* TABLE_GENERATOR_H */
+
+void mbot_print_state(serial_mbot_imu_t imu, serial_mbot_encoders_t encoders, serial_pose2D_t odometry, serial_mbot_motor_vel_t motor_vel);
+#endif /* MBOT_PRINT_H */
