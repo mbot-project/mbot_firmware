@@ -6,7 +6,7 @@
 
 /* The user can set the encoder resolution to 20, 40, or 48 with a CMake arg. */
 #ifdef USER_ENCODER_RES
-#define ENCODER_RES             USER_ENCODER_RES
+#define ENCODER_RES             (float)USER_ENCODER_RES
 #else
 #define ENCODER_RES             48.0  // Default encoder resolution.
 #endif   /* USER_ENCODER_RES */

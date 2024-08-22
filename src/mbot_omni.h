@@ -26,9 +26,9 @@
 // Some useful math definitions.
 #define OMNI_MOTOR_ANGLE_LFT (-M_PI / 6.0f)   // Left wheel velocity angle (-30 degrees)
 #define OMNI_MOTOR_ANGLE_BCK (M_PI / 2.0f)           // Back wheel velocity angle (90 degrees)
-#define OMNI_MOTOR_ANGLE_RGT (-5.0 * M_PI / 6.0f)    // Right wheel velocity angle (-150 degrees)
-#define SQRT3                   1.732050807568877
-#define INV_SQRT3               5.7735026918962575E-1
+#define OMNI_MOTOR_ANGLE_RGT (-5.0f * M_PI / 6.0f)    // Right wheel velocity angle (-150 degrees)
+#define SQRT3                   1.732050807568877f
+#define INV_SQRT3               5.7735026918962575E-1f
 
 /**
  * @brief Calculate the body velocity of an omnidirectional (Kiwi) robot
