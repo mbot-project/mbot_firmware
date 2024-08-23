@@ -7,6 +7,7 @@
 - [Code Structure](#code-structure)
 - [MBot Classic Usage and Features](#mbot-classic-usage-and-features)
 - [MBot OMNI Usage and Features](#mbot-omni-usage-and-features)
+- [Generating New Releases](#generating-new-releases)
 - [Maintainers](#maintainers)
 
 
@@ -92,6 +93,19 @@ sudo mbot-upload-firmware flash build/mbot_omni.uf2
 ```
 ### Test
 Use `python/mbot_move_simple.py` to send lcm velocity command to test.
+
+## Generating New Releases
+
+To create new releases, follow these steps:
+1. Bump the version variable, `CMAKE_PROJECT_VERSION`, in `CMakeLists.txt` and commit it to GitHub.
+2. In the root of the repository, run the script to generate all the compiled firmware files (this will take some time):
+   ```bash
+   ./build_all.sh
+   ```
+3. When the script finishes, download all the files in the folder `build/release-vX.Y.Z`
+4. Create a new release on GitHub, with the title *and* tag "vX.Y.Z". Select "Create new tag on publish".
+5. Upload all the files from `build/release-vX.Y.Z` under the "Attach binaries" section of the release.
+6. Write a description of the changes for the new release and publish.
 
 ## Maintainers
 - The current maintainers of this project are: Dr. Peter Gaskell, Shaw Sun. Please direct all questions regarding support, contributions, and issues to the maintainer.
