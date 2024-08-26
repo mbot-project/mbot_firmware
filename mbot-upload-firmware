@@ -23,8 +23,8 @@ if grep -q "Raspberry Pi 4" /proc/device-tree/model; then
   RUN_PIN=17
 elif grep -q "Raspberry Pi 5" /proc/device-tree/model; then
   echo "Detected Raspberry Pi 5, entering $1 mode..."
-  BTLD_PIN=588
-  RUN_PIN=575
+  BTLD_PIN=4
+  RUN_PIN=17
 elif grep -q "NVIDIA Jetson" /proc/device-tree/model; then
   echo "Detected NVIDIA Jetson, entering $1 mode..."
   BTLD_PIN=50
