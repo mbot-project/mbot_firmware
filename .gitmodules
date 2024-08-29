@@ -1,3 +1,0 @@
-[submodule "lib/pico-sdk"]
-	path = lib/pico-sdk
-	url = https://github.com/MBot-Project-Development/pico_sdk.git

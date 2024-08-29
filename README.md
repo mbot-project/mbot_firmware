@@ -15,27 +15,13 @@
 Firmware designed for deployment on the Raspberry Pi Pico, tailored specifically for MBot Omni and MBot Classic.
 
 ## Installation
-
-1. After cloning the repository, run the setup script:
-
-    ```bash
-    cd ~/mbot_firmware
-    ./setup.sh
-    ```
-    - which will install dependencies (requires sudo password) and initialize the submodules.
-
-    If setup.sh is not executable by default, run the following to enable it:
-
-    ```bash
-    sudo chmod +x setup.sh
-    ```
-2. Build as follows:
-    ```bash
-    mkdir build
-    cd build
-    cmake [-DMBOT_TYPE=<MBOT-TYPE> -DENC=<ENC-RES> -DOMNI_WHEEL_DIAMETER=<WHEEL-DIA>] ..
-    make
-    ```
+Build as follows:
+```bash
+mkdir build
+cd build
+cmake [-DMBOT_TYPE=<MBOT-TYPE> -DENC=<ENC-RES> -DOMNI_WHEEL_DIAMETER=<WHEEL-DIA>] ..
+make
+```
 
 
 ### Specifying the MBot type
