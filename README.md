@@ -36,10 +36,7 @@ Firmware designed for deployment on the Raspberry Pi Pico, tailored specifically
     cmake [-DMBOT_TYPE=<MBOT-TYPE> -DENC=<ENC-RES> -DOMNI_WHEEL_DIAMETER=<WHEEL-DIA>] ..
     make
     ```
-3. Install the firmware upload script:
-    ```bash
-    sudo cp mbot-upload-firmware /usr/local/bin
-    ```
+
 
 ### Specifying the MBot type
 
