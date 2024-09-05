@@ -84,9 +84,6 @@ cp mbot_classic_motor_test.uf2 $RELEASE_DIR
 cp mbot_omni_motor_test.uf2 $RELEASE_DIR
 cp mbot_encoder_test.uf2 $RELEASE_DIR
 
-# Copy the upload script.
-cp ../mbot-upload-firmware $RELEASE_DIR
-
 echo "Done preparing release! The files for the release are in directory:"
 echo
 echo "build/$RELEASE_DIR"
