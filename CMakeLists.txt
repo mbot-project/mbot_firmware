@@ -107,7 +107,7 @@ if(MBOT_TYPE STREQUAL "CLASSIC")
   # Motor Calibration
   set(MBOT_CALIBRATE_CLASSIC mbot_calibrate_classic${NAME_SUFFIX})
   add_executable(${MBOT_CALIBRATE_CLASSIC}
-    tests/mbot_calibrate_classic.c
+    tests/mbot_calibrate_classic_auto.c
   )
   target_link_libraries(${MBOT_CALIBRATE_CLASSIC}
     pico_stdlib
