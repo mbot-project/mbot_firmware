@@ -100,28 +100,15 @@ int main() {
     mbot_motor_set_duty(MOT_R, 0.0);
     params.encoder_polarity[MOT_L] = (mbot_encoder_read_count(MOT_L)>0) ? 1 : -1;
     params.encoder_polarity[MOT_R] = (mbot_encoder_read_count(MOT_R)>0) ? 1 : -1;
-    printf("\nENC0 POL: %d , ENC1 POL: %d\n", params.encoder_polarity[MOT_L], params.encoder_polarity[MOT_R]);
+    printf("\nENC0 POL: %d , ENC1 POL: %d\n \n", params.encoder_polarity[MOT_L], params.encoder_polarity[MOT_R]);
     
     // Find Motor Polarity
-    printf("\nTesting Motor Polarity...\n");
     mbot_imu_config = mbot_imu_default_config();
     mbot_imu_init(&mbot_imu_data, mbot_imu_config);
-
-    // find baseline for accel_x0 and accel_y0 by averaging 100 samples from imu
-    float accel_x0 = 0.0;
-    float accel_y0 = 0.0;
-    sleep_ms(1000);
-    for(int i=0; i<100; i++){
-        accel_x0 += mbot_imu_data.accel[0]/100.0;
-        accel_y0 += mbot_imu_data.accel[1]/100.0;
-        sleep_ms(20);
-    }
-    printf("\nACCEL baseline | x0: %f y0: %f\n\n", accel_x0, accel_y0);
+    printf("\nTesting Motor Polarity...\n");
 
     // initializing array to store imu data
     float gyro_z[4] = {0, 0, 0, 0};
-    float accel_x[4] = {0, 0, 0, 0};
-    float accel_y[4] = {0, 0, 0, 0};
 
     float spd = 0.4; //Motor duty used for calibration
     float motor_duties[4][2] = {
@@ -137,43 +124,35 @@ int main() {
 
         for (int j = 0; j < 25; j++) {
             gyro_z[i] += mbot_imu_data.gyro[2];
-            accel_x[i] += mbot_imu_data.accel[0] - accel_x0;
-            accel_y[i] += mbot_imu_data.accel[1] - accel_y0;
             sleep_ms(20);
         }
 
         mbot_motor_set_duty(MOT_L, 0.0);
         mbot_motor_set_duty(MOT_R, 0.0);
-        printf("Gyro: %f , Accel X: %f , Accel Y: %f\n", gyro_z[i], accel_x[i], accel_y[i]);
+        printf("Gyro: %f\n", gyro_z[i]);
         sleep_ms(500);
     }
 
-    int idx1, idx2, fwd_idx, rot_idx;
-    find_two_smallest(gyro_z, 4, &idx1, &idx2); //Find the two segments without rotation
-    printf("2 smallest: (%d, %d)\n", idx1, idx2);
+    int rot_idx;
     rot_idx = find_index_of_max_positive(gyro_z, 4); //Find largest positive rotation (+wz)
-
-    if(accel_x[idx1] < 0.0){fwd_idx = idx1;}
-    else if(accel_x[idx2] < 0.0){fwd_idx = idx2;} //Find no rotation max -x acceleration (+vx)
-    else{printf("ERROR, No Negative Acceleration\n");}
-
-    printf("rotidx, fwdidx = %d, %d\n", rot_idx, fwd_idx);
-
-    switch(fwd_idx) {
+    printf("rotidx = %d\n", rot_idx);
+    
+    // motor_duties[rot_idx] will make the robot turnning CCW
+    switch(rot_idx) {
     case 0:
-        params.motor_polarity[MOT_L] = 1;
+        params.motor_polarity[MOT_L] = -1;
         params.motor_polarity[MOT_R] = -1;
         break;
     case 1:
-        params.motor_polarity[MOT_L] = -1;
+        params.motor_polarity[MOT_L] = 1;
         params.motor_polarity[MOT_R] = -1;
         break;
     case 2:
-        params.motor_polarity[MOT_L] = 1;
+        params.motor_polarity[MOT_L] = -1;
         params.motor_polarity[MOT_R] = 1;
         break;
     case 3:
-        params.motor_polarity[MOT_L] = -1;
+        params.motor_polarity[MOT_L] = 1;
         params.motor_polarity[MOT_R] = 1;
         break;
     default:
@@ -186,7 +165,7 @@ int main() {
 
     printf("Motor Polarity: (%d, %d)  Left ID: %d, Right ID: %d\n", params.motor_polarity[MOT_L], params.motor_polarity[MOT_R], MOT_L, MOT_R);
 
-    printf("Testing polarity calibration result: \n");
+    printf("\nTesting polarity calibration result: \n");
 
     int enc_right;
     int enc_left;
@@ -244,7 +223,7 @@ int main() {
     sleep_ms(500);
 
     // Find slope and intercept
-    printf("Measuring Motor Calibration...\n");
+    printf("\nCalculating Slope and Intercept...\n");
     
     // Turn CCW
     int num_points = 20;
