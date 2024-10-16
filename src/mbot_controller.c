@@ -1,10 +1,11 @@
 #include "mbot_controller.h"
 
-#ifdef MBOT_TYPE_CLASSIC
-#include "config/mbot_classic_config.h"
-#elif defined(MBOT_TYPE_OMNI)
-#include "config/mbot_omni_config.h"
-#endif
+rc_filter_t left_wheel_pid;
+rc_filter_t right_wheel_pid;
+rc_filter_t back_wheel_pid;
+rc_filter_t mbot_vx_pid;
+rc_filter_t mbot_vy_pid;
+rc_filter_t mbot_wz_pid;
 
 int mbot_init_ctlr(mbot_ctlr_cfg_t ctlr_cfg) {
     left_wheel_pid = rc_filter_empty();
