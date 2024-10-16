@@ -20,6 +20,7 @@
 #include "mbot_print.h"
 #include "mbot_comms.h"
 #include "mbot_odometry.h"
+#include "mbot_controller.h"
 
 #include "config/mbot_classic_config.h"
 
