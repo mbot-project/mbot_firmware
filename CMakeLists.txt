@@ -94,6 +94,7 @@ endfunction()
 
 if(MBOT_TYPE STREQUAL "CLASSIC")
   # MBOT Classic Main.
+  add_definitions(-DMBOT_TYPE_CLASSIC)
   set(MBOT_CLASSIC mbot_classic${NAME_SUFFIX})
   add_executable(${MBOT_CLASSIC}
     src/mbot_controller.c
@@ -138,6 +139,7 @@ if(MBOT_TYPE STREQUAL "CLASSIC")
 
 elseif(MBOT_TYPE STREQUAL "OMNI")
   # MBOT Omni
+  add_definitions(-DMBOT_TYPE_OMNI)
   set(MBOT_OMNI mbot_omni${NAME_SUFFIX})
   add_executable(${MBOT_OMNI}
     src/mbot_controller.c
