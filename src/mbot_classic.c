@@ -20,6 +20,7 @@ int mbot_init_pico(void);
 int mbot_init_hardware(void);
 void mbot_read_encoders(serial_mbot_encoders_t* encoders);
 void mbot_read_imu(serial_mbot_imu_t *imu);
+void mbot_read_adc(serial_mbot_analog_t *analog_inputs);
 void mbot_calculate_motor_vel(serial_mbot_encoders_t encoders, serial_mbot_motor_vel_t *motor_vel);
 static float _calibrated_pwm_from_vel_cmd(float vel_cmd, int motor_idx);
 void print_mbot_params(const mbot_params_t* params);
@@ -39,6 +40,7 @@ bool mbot_loop(repeating_timer_t *rt)
     mbot_vel.utime = global_utime;
     mbot_read_encoders(&mbot_encoders);
     mbot_read_imu(&mbot_imu);
+    mbot_read_adc(&mbot_analog_inputs);
     mbot_calculate_motor_vel(mbot_encoders, &mbot_motor_vel);
 
     mbot_calculate_diff_body_vel(   mbot_motor_vel.velocity[MOT_L],
@@ -89,6 +91,8 @@ bool mbot_loop(repeating_timer_t *rt)
         comms_write_topic(MBOT_VEL, &mbot_vel);
         // write the Motor velocity to serial
         comms_write_topic(MBOT_MOTOR_VEL, &mbot_motor_vel);
+        // write the ADC readings to serial
+        comms_write_topic(MBOT_ANALOG_IN, &mbot_analog_inputs);
         // write the PWMs to serial
         comms_write_topic(MBOT_MOTOR_PWM, &mbot_motor_pwm);
     }
@@ -174,11 +178,19 @@ int mbot_init_hardware(void){
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
 
+    // Initialize the IMU 
     mbot_imu_config = mbot_imu_default_config();
     mbot_imu_config.sample_rate = 200;
-    // Initialize the IMU using the Digital Motion Processor
     printf("Initializing IMU...\n");
     mbot_imu_init(&mbot_imu_data, mbot_imu_config);
+
+    // Initialize ADC
+    adc_init();
+    adc_gpio_init(26);
+    adc_gpio_init(27);
+    adc_gpio_init(28);
+    adc_gpio_init(29);
+
     mbot_init_fram();
     return MBOT_OK;
 }
@@ -212,6 +224,20 @@ void mbot_read_imu(serial_mbot_imu_t *imu){
     imu->angles_quat[1] = mbot_imu_data.quat[1];
     imu->angles_quat[2] = mbot_imu_data.quat[2];
     imu->angles_quat[3] = mbot_imu_data.quat[3];
+}
+
+void mbot_read_adc(serial_mbot_analog_t *analog_inputs){
+    analog_inputs->utime = global_utime;
+    const float conversion_factor = 3.0f / (1 << 12);
+    int16_t raw;
+    for(int i = 0; i<4; i++){
+        adc_select_input(i);
+        raw = adc_read();
+        analog_inputs->raw[i] = raw;
+        analog_inputs->volts[i] = conversion_factor * raw;
+    }
+    // last channel is battery voltage (has 5x divider)
+    analog_inputs->volts[3] = 5.0 * conversion_factor * raw; 
 }
 
 // Converting the raw encoder ticks into actual rotational velocities in radians per second

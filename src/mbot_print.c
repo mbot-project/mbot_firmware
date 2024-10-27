@@ -96,12 +96,18 @@ void mbot_print_state(serial_mbot_imu_t imu, serial_mbot_encoders_t encoders, se
         printf("| \033[31m SERIAL COMMUNICATION FAILURE\033[0m     |\n");
     }
     const char* imu_headings[] = {"ROLL", "PITCH", "YAW"};
+    const char* analog_headings[] = {"AIN 0","AIN 1","AIN 2","BATT (V)"};
     const char* enc_headings[] = {"ENC 0", "ENC 1", "ENC 2"};
     const char* odom_headings[] = {"X", "Y", "THETA"};
     const char* motor_vel_headings[] = {"MOT 0", "MOT 1", "MOT 2"};
+    char buf[1024] = {0};
+
+    float adc_array[4] = {mbot_analog_inputs.volts[0], mbot_analog_inputs.volts[1], mbot_analog_inputs.volts[2], mbot_analog_inputs.volts[3]};
+    generateTableFloat(buf, 1, 4, "ANALOG", analog_headings, adc_array);
+    printf("\r%s", buf);
+    buf[0] = '\0';
     // we shouldn't need to do this, need to update generateTable to handle different datatypes
     int encs[3] = {(int)encoders.ticks[0], (int)encoders.ticks[1], (int)encoders.ticks[2]};
-    char buf[1024] = {0};
     generateTableInt(buf, 1, 3, "ENCODERS", enc_headings, encs);
     printf("\r%s", buf);
     
