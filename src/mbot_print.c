@@ -102,25 +102,27 @@ void mbot_print_state(serial_mbot_imu_t imu, serial_mbot_encoders_t encoders, se
     const char* motor_vel_headings[] = {"MOT 0", "MOT 1", "MOT 2"};
     char buf[1024] = {0};
 
-    float adc_array[4] = {mbot_analog_inputs.volts[0], mbot_analog_inputs.volts[1], mbot_analog_inputs.volts[2], mbot_analog_inputs.volts[3]};
+    float adc_array[1][4] = {{mbot_analog_inputs.volts[0], mbot_analog_inputs.volts[1], mbot_analog_inputs.volts[2], mbot_analog_inputs.volts[3]}};
     generateTableFloat(buf, 1, 4, "ANALOG", analog_headings, adc_array);
     printf("\r%s", buf);
     buf[0] = '\0';
-    // we shouldn't need to do this, need to update generateTable to handle different datatypes
-    int encs[3] = {(int)encoders.ticks[0], (int)encoders.ticks[1], (int)encoders.ticks[2]};
+
+    int encs[1][3] = {{(int)encoders.ticks[0], (int)encoders.ticks[1], (int)encoders.ticks[2]}};
     generateTableInt(buf, 1, 3, "ENCODERS", enc_headings, encs);
     printf("\r%s", buf);
-    
+
     buf[0] = '\0';
-    generateTableFloat(buf, 1, 3, "IMU", imu_headings, imu.angles_rpy);
+    float imu_array[1][3] = {{imu.angles_rpy[0], imu.angles_rpy[1], imu.angles_rpy[2]}};
+    generateTableFloat(buf, 1, 3, "IMU", imu_headings, imu_array);
     printf("\r%s", buf);
-    
+
     buf[0] = '\0';
-    generateTableFloat(buf, 1, 3, "MOTOR", motor_vel_headings, motor_vel.velocity);
+    float motor_array[1][3] = {{motor_vel.velocity[0], motor_vel.velocity[1], motor_vel.velocity[2]}};
+    generateTableFloat(buf, 1, 3, "MOTOR", motor_vel_headings, motor_array);
     printf("\r%s", buf);
-    
+
     buf[0] = '\0';
-    float odom_array[3] = {odometry.x, odometry.y, odometry.theta};
+    float odom_array[1][3] = {{odometry.x, odometry.y, odometry.theta}};
     generateTableFloat(buf, 1, 3, "ODOMETRY", odom_headings, odom_array);
     printf("\r%s", buf);
 
