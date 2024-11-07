@@ -4,6 +4,8 @@ sudo chmod -R 775 .git
 echo "[Setup] Updating submodules..."
 cd lib && git submodule update --init
 cd pico-sdk && git submodule update --init
+# git checkout master
+git pull
 cd ../../
 
 # set PICO_SDK_PATH
