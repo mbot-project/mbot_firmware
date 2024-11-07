@@ -24,7 +24,7 @@ extern serial_mbot_encoders_t mbot_encoders;
 extern serial_twist2D_t mbot_vel;
 extern serial_mbot_motor_pwm_t mbot_motor_pwm;
 extern serial_mbot_motor_vel_t mbot_motor_vel;
-
+extern serial_mbot_analog_t mbot_analog_inputs;
 extern serial_twist2D_t mbot_vel_cmd;
 extern serial_mbot_motor_pwm_t mbot_motor_pwm_cmd;
 extern serial_mbot_motor_vel_t mbot_motor_vel_cmd;

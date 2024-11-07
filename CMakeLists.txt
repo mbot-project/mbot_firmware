@@ -81,6 +81,7 @@ function(configure_mbot target)
     hardware_sync
     hardware_i2c
     hardware_flash
+    hardware_adc
     mbotlib
     rclib
     comms
@@ -160,6 +161,7 @@ elseif(MBOT_TYPE STREQUAL "OMNI")
     hardware_i2c
     hardware_pio
     hardware_pwm
+    hardware_adc
     rclib
   )
   pico_enable_stdio_usb(${MBOT_CALIBRATE_OMNI} 1)
@@ -175,6 +177,7 @@ elseif(MBOT_TYPE STREQUAL "OMNI")
     hardware_i2c
     hardware_pio
     hardware_pwm
+    hardware_adc
     rclib
   )
   pico_enable_stdio_usb(mbot_omni_motor_test 1)
@@ -199,3 +202,21 @@ target_link_libraries(mbot_encoder_test
 pico_enable_stdio_usb(mbot_encoder_test 1)
 pico_enable_stdio_uart(mbot_encoder_test 0)
 pico_add_extra_outputs(mbot_encoder_test)
+
+# Analog In Test
+add_executable(mbot_analog_input_test
+  tests/mbot_analog_input_test.c
+)
+
+target_link_libraries(mbot_analog_input_test
+  pico_stdlib
+  hardware_i2c
+  hardware_pio
+  hardware_pwm
+  hardware_adc
+  rclib
+)
+
+pico_enable_stdio_usb(mbot_analog_input_test 1)
+pico_enable_stdio_uart(mbot_analog_input_test 0)
+pico_add_extra_outputs(mbot_analog_input_test)

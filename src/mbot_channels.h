@@ -16,6 +16,7 @@ enum message_topics{
     MBOT_IMU = 220,
     MBOT_ENCODERS = 221,
     MBOT_ENCODERS_RESET = 222,
+    MBOT_ANALOG_IN = 223,
     MBOT_MOTOR_PWM_CMD = 230,
     MBOT_MOTOR_VEL_CMD = 231,
     MBOT_MOTOR_VEL = 232,

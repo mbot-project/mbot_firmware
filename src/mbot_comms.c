@@ -6,7 +6,7 @@ serial_mbot_encoders_t mbot_encoders = {0};
 serial_twist2D_t mbot_vel = {0};
 serial_mbot_motor_pwm_t mbot_motor_pwm = {0};
 serial_mbot_motor_vel_t mbot_motor_vel = {0};
-
+serial_mbot_analog_t mbot_analog_inputs = {0};
 serial_twist2D_t mbot_vel_cmd = {0};
 serial_mbot_motor_pwm_t mbot_motor_pwm_cmd = {0};
 serial_mbot_motor_vel_t mbot_motor_vel_cmd = {0};
@@ -25,6 +25,7 @@ void register_topics()
     // Published Topics
     comms_register_topic(MBOT_ODOMETRY, sizeof(serial_pose2D_t), (Deserialize)&pose2D_t_deserialize, (Serialize)&pose2D_t_serialize, NULL);
     comms_register_topic(MBOT_IMU, sizeof(serial_mbot_imu_t), (Deserialize)&mbot_imu_t_deserialize, (Serialize)&mbot_imu_t_serialize, NULL);
+    comms_register_topic(MBOT_ANALOG_IN, sizeof(serial_mbot_analog_t), (Deserialize)&mbot_analog_t_deserialize, (Serialize)&mbot_analog_t_serialize, NULL);
     comms_register_topic(MBOT_ENCODERS, sizeof(serial_mbot_encoders_t), (Deserialize)&mbot_encoders_t_deserialize, (Serialize)&mbot_encoders_t_serialize, NULL);
     comms_register_topic(MBOT_VEL, sizeof(serial_twist2D_t), (Deserialize)&twist2D_t_deserialize, (Serialize)&twist2D_t_serialize, NULL);
     comms_register_topic(MBOT_MOTOR_VEL, sizeof(serial_mbot_motor_vel_t), (Deserialize)&mbot_motor_vel_t_deserialize, (Serialize)&mbot_motor_vel_t_serialize, NULL);
