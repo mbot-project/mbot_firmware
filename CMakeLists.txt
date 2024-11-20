@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
-set(CMAKE_PROJECT_VERSION 1.1.0 CACHE STRING "Project version")
+set(CMAKE_PROJECT_VERSION 1.2.0 CACHE STRING "Project version")
 
 # Expose the version to the source code.
 add_definitions(-DVERSION="${CMAKE_PROJECT_VERSION}")
