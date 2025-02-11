@@ -79,20 +79,23 @@ bool mbot_loop(repeating_timer_t *rt)
             mbot_motor_pwm.utime = global_utime;
         }
 
+        float tmp_pwm_left;
+        float tmp_pwm_right;
+
         if(enable_pwm_lpf == true){
-            mbot_motor_pwm_cmd_filtered.pwm[MOT_L] = rc_filter_march(&mbot_left_pwm_lpf, mbot_motor_pwm_cmd.pwm[MOT_L]);
-            mbot_motor_pwm_cmd_filtered.pwm[MOT_R] = rc_filter_march(&mbot_right_pwm_lpf, mbot_motor_pwm_cmd.pwm[MOT_R]);
+            tmp_pwm_left = rc_filter_march(&mbot_left_pwm_lpf, mbot_motor_pwm_cmd.pwm[MOT_L]);
+            tmp_pwm_right = rc_filter_march(&mbot_right_pwm_lpf, mbot_motor_pwm_cmd.pwm[MOT_R]);
         }
         else {
-            mbot_motor_pwm_cmd_filtered.pwm[MOT_L] = mbot_motor_pwm_cmd.pwm[MOT_L];
-            mbot_motor_pwm_cmd_filtered.pwm[MOT_R] = mbot_motor_pwm_cmd.pwm[MOT_R];
+            tmp_pwm_left = mbot_motor_pwm_cmd.pwm[MOT_L];
+            tmp_pwm_right = mbot_motor_pwm_cmd.pwm[MOT_R];
         }
 
         // Set motors
-        mbot_motor_set_duty(MOT_R, mbot_motor_pwm_cmd_filtered.pwm[MOT_R]);
-        mbot_motor_pwm.pwm[MOT_R] = mbot_motor_pwm_cmd_filtered.pwm[MOT_R];
-        mbot_motor_set_duty(MOT_L, mbot_motor_pwm_cmd_filtered.pwm[MOT_L]);
-        mbot_motor_pwm.pwm[MOT_L] = mbot_motor_pwm_cmd_filtered.pwm[MOT_L];
+        mbot_motor_set_duty(MOT_L, tmp_pwm_left);
+        mbot_motor_pwm.pwm[MOT_L] = tmp_pwm_left;
+        mbot_motor_set_duty(MOT_R, tmp_pwm_right);
+        mbot_motor_pwm.pwm[MOT_R] = tmp_pwm_right;
 
         // write the encoders to serial
         comms_write_topic(MBOT_ENCODERS, &mbot_encoders);

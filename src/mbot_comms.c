@@ -9,7 +9,6 @@ serial_mbot_motor_vel_t mbot_motor_vel = {0};
 serial_mbot_analog_t mbot_analog_inputs = {0};
 serial_twist2D_t mbot_vel_cmd = {0};
 serial_mbot_motor_pwm_t mbot_motor_pwm_cmd = {0};
-serial_mbot_motor_pwm_t mbot_motor_pwm_cmd_filtered = {0};
 serial_mbot_motor_vel_t mbot_motor_vel_cmd = {0};
 serial_timestamp_t mbot_received_time = {0};
 
