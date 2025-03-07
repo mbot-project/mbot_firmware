@@ -14,6 +14,10 @@ bool global_comms_status = COMMS_ERROR;
 int drive_mode = 0;
 mbot_bhy_config_t mbot_imu_config;
 mbot_bhy_data_t mbot_imu_data;
+static bool enable_pwm_lpf = true;
+rc_filter_t mbot_left_pwm_lpf;
+rc_filter_t mbot_right_pwm_lpf;
+rc_filter_t mbot_back_pwm_lpf;
 
 // Forward declaration for internal helper function
 int mbot_init_pico(void);
@@ -79,13 +83,29 @@ bool mbot_loop(repeating_timer_t *rt)
             mbot_motor_pwm.utime = global_utime;
         }
 
+        float tmp_pwm_left;
+        float tmp_pwm_right;
+        float tmp_pwm_back;
+
+        if(enable_pwm_lpf == true){
+            tmp_pwm_left = rc_filter_march(&mbot_left_pwm_lpf, mbot_motor_pwm_cmd.pwm[MOT_L]);
+            tmp_pwm_right = rc_filter_march(&mbot_right_pwm_lpf, mbot_motor_pwm_cmd.pwm[MOT_R]);
+            tmp_pwm_back = rc_filter_march(&mbot_back_pwm_lpf, mbot_motor_pwm_cmd.pwm[MOT_B]);
+        }
+        else {
+            tmp_pwm_left = mbot_motor_pwm_cmd.pwm[MOT_L];
+            tmp_pwm_right = mbot_motor_pwm_cmd.pwm[MOT_R];
+            tmp_pwm_back = mbot_motor_pwm_cmd.pwm[MOT_B];
+        }
+
+
         // Set motors
-        mbot_motor_set_duty(MOT_R, mbot_motor_pwm_cmd.pwm[MOT_R]);
-        mbot_motor_pwm.pwm[MOT_R] = mbot_motor_pwm_cmd.pwm[MOT_R];
-        mbot_motor_set_duty(MOT_L, mbot_motor_pwm_cmd.pwm[MOT_L]);
-        mbot_motor_pwm.pwm[MOT_L] = mbot_motor_pwm_cmd.pwm[MOT_L];
-        mbot_motor_set_duty(MOT_B, mbot_motor_pwm_cmd.pwm[MOT_B]);
-        mbot_motor_pwm.pwm[MOT_B] = mbot_motor_pwm_cmd.pwm[MOT_B];
+        mbot_motor_set_duty(MOT_R, tmp_pwm_right);
+        mbot_motor_pwm.pwm[MOT_R] = tmp_pwm_right;
+        mbot_motor_set_duty(MOT_L, tmp_pwm_left);
+        mbot_motor_pwm.pwm[MOT_L] = tmp_pwm_left;
+        mbot_motor_set_duty(MOT_B, tmp_pwm_back);
+        mbot_motor_pwm.pwm[MOT_B] = tmp_pwm_back;
 
         // write the encoders to serial
         comms_write_topic(MBOT_ENCODERS, &mbot_encoders);
@@ -198,6 +218,15 @@ int mbot_init_hardware(void){
     adc_gpio_init(27);
     adc_gpio_init(28);
     adc_gpio_init(29);
+ 
+    // Initialize PWM LPFs for smoother motion
+    mbot_left_pwm_lpf = rc_filter_empty();
+    mbot_right_pwm_lpf = rc_filter_empty();
+    mbot_back_pwm_lpf = rc_filter_empty();
+
+    rc_filter_first_order_lowpass(&mbot_left_pwm_lpf, MAIN_LOOP_PERIOD, 4.0 * MAIN_LOOP_PERIOD);
+    rc_filter_first_order_lowpass(&mbot_right_pwm_lpf, MAIN_LOOP_PERIOD, 4.0 * MAIN_LOOP_PERIOD);
+    rc_filter_first_order_lowpass(&mbot_back_pwm_lpf, MAIN_LOOP_PERIOD, 4.0 * MAIN_LOOP_PERIOD);
 
     mbot_init_fram();
     return MBOT_OK;

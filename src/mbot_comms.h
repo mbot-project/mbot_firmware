@@ -14,9 +14,9 @@
 #include "mbot_channels.h"
 
 /*
-* Messages used by the MBot code, 
-* we also use these to store state
-*/
+ * Messages used by the MBot code,
+ * we also use these to store state
+ */
 // we use extern keyword here to resolve the multiple definition issue
 extern serial_mbot_imu_t mbot_imu;
 extern serial_pose2D_t mbot_odometry;
@@ -30,7 +30,8 @@ extern serial_mbot_motor_pwm_t mbot_motor_pwm_cmd;
 extern serial_mbot_motor_vel_t mbot_motor_vel_cmd;
 extern serial_timestamp_t mbot_received_time;
 
-enum drive_modes{
+enum drive_modes
+{
     MODE_MOTOR_PWM = 0,
     MODE_MOTOR_VEL_OL = 1,
     MODE_MOTOR_VEL_PID = 2,
@@ -43,7 +44,7 @@ extern uint64_t global_pico_time;
 extern bool global_comms_status;
 extern int drive_mode;
 
-//callback functions
+// callback functions
 void timestamp_cb(serial_timestamp_t *msg);
 void reset_encoders_cb(serial_mbot_encoders_t *msg);
 void reset_odometry_cb(serial_pose2D_t *msg);
