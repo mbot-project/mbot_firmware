@@ -12,7 +12,7 @@
 
 
 ## Description
-Firmware designed for deployment on the Raspberry Pi Pico, tailored specifically for MBot Omni and MBot Classic.
+Firmware designed for deployment on the Raspberry Pi Pico & [Robotics Control Board](https://mbot-dev.engin.umich.edu/mbot-robotics-control-board/), tailored specifically for MBot Omni and MBot Classic.
 
 ## Installation
 1. After cloning the repository, run the setup script:
@@ -41,9 +41,9 @@ Firmware designed for deployment on the Raspberry Pi Pico, tailored specifically
 
 Various parameters can be configured.
 
-* `MBOT_TYPE`: One of `OMNI` or `CLASSIC`. Only the firmware for the given robot type will be generated.
-* `ENC`: The encoder resolution. This must be one of the supported resolutions: `20`, `40`, or `48`. For type `OMNI`, encoder resolution `40` is not supported.
-* `OMNI_WHEEL_DIAMETER`: The wheel diameter for the `OMNI` robot type, in millimeters. This must be one of the supported values: `96` or `101`. This option is ignored for type `CLASSIC`.
+* `MBOT_TYPE` (**Required**): Specify `OMNI` or `CLASSIC`. Only the firmware for the specified robot type will be generated. 
+* `ENC`: The encoder resolution. Currently the MBot Platform comes in `20`, `40`, or `48`. 
+* `OMNI_WHEEL_DIAMETER`: The wheel diameter for the `OMNI` robot type, in millimeters. Currently, MBot Omnis have `96` or `101`. This option is ignored for type `CLASSIC`.
 
 ## Code Structure
 The students are required to make changes only in the `/src` directory and test the robot using scripts located in the `/python` directory or by adding their own scripts there. Everything else within the mbot_firmware is set to default and should not be directly modified by the students.
@@ -55,7 +55,7 @@ More details can be found under [mbot_documentation](https://github.com/mbot-pro
 
 ### Set Custom MBot Specifications
 
-Locate the file `include/config/mbot_classic_config.h`. If you're using an official version and it matches your needs, leave everything unchanged. Otherwise, edit the values to suit your needs.
+Locate the file `include/config/mbot_classic_config.h` for the Classic or `include/config/mbot_omni_config.h`. If you're using an official version and it matches your needs, leave everything unchanged. Otherwise, edit the values to suit your needs.
 
 ### Calibrate the MBot and flash the firmware
 Run the following command, the Pico will reboot automatically, and will then run its calibration routine right away. Allow the Pico to finish its calibration routine without interference.
