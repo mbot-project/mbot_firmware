@@ -43,7 +43,7 @@ Various parameters can be configured.
 
 * `MBOT_TYPE` (**Required**): Specify `OMNI` or `CLASSIC`. Only the firmware for the specified robot type will be generated. 
 * `ENC`: The encoder resolution. Currently the MBot Platform comes in `20`, `40`, or `48`. 
-* `OMNI_WHEEL_DIAMETER`: The wheel diameter for the `OMNI` robot type, in millimeters. Currently, MBot Omnis have `96` or `101`. This option is ignored for type `CLASSIC`.
+* `OMNI_WHEEL_DIAMETER`: The wheel diameter for the `OMNI` robot type, in millimeters. The MBot Omnis have `96` or `101`. This option is ignored for type `CLASSIC`.
 
 ## Code Structure
 The students are required to make changes only in the `/src` directory and test the robot using scripts located in the `/python` directory or by adding their own scripts there. Everything else within the mbot_firmware is set to default and should not be directly modified by the students.
@@ -55,7 +55,15 @@ More details can be found under [mbot_documentation](https://github.com/mbot-pro
 
 ### Set Custom MBot Specifications
 
-Locate the file `include/config/mbot_classic_config.h` for the Classic or `include/config/mbot_omni_config.h`. If you're using an official version and it matches your needs, leave everything unchanged. Otherwise, edit the values to suit your needs.
+If you're using motors and/or wheels that differ from those included in the standard MBot kit, you can update the relevant parameters in `include/config/mbot_classic_config.h`:
+- `#define GEAR_RATIO` – Set the gear ratio of your motor
+- `#define ENCODER_RES` – Set the encoder resolution (counts per revolution)
+- `#define DIFF_WHEEL_DIAMETER` – Set the diameter of the wheel (in meters)
+- `#define DIFF_WHEEL_RADIUS` – Set the radius of the wheel (in meters)
+
+
+If you're using an the standard MBot Classic kit then leave everything unchanged. 
+
 
 ### Calibrate the MBot and flash the firmware
 Run the following command, the Pico will reboot automatically, and will then run its calibration routine right away. Allow the Pico to finish its calibration routine without interference.
@@ -72,11 +80,15 @@ sudo mbot-upload-firmware flash build/mbot_classic.uf2
 Use `python/mbot_move_simple.py` to send lcm velocity command to test.
 
 ## MBot OMNI Usage and Features
-> For MBot OMNI use, you can also check detailed setup guide [here](https://hellorob.org/mbot/).
 
 ### Set Custom MBot Specifications
 
-Locate the file `include/config/mbot_omni_config.h`. If you're using an official version and it matches your needs, leave everything unchanged. Otherwise, edit the values to suit your needs.
+If you're using motors and/or wheels that differ from those included in the standard MBot kit, you can update the relevant parameters in `include/config/mbot_omni_config.h`:
+- `#define GEAR_RATIO` – Set the gear ratio of your motor
+- `#define ENCODER_RES` – Set the encoder resolution (counts per revolution)
+- `#define OMNI_WHEEL_RADIUS` – Set the radius of the omni wheel (in meters)
+
+If you're using an the standard MBot Omni kit then leave everything unchanged. 
 
 ### Calibrate the MBot and flash the firmware
 Run the following command, the Pico will reboot automatically, and will then run its calibration routine right away. Allow the Pico to finish its calibration routine without interference.
