@@ -29,6 +29,7 @@ extern serial_twist2D_t mbot_vel_cmd;
 extern serial_mbot_motor_pwm_t mbot_motor_pwm_cmd;
 extern serial_mbot_motor_vel_t mbot_motor_vel_cmd;
 extern serial_timestamp_t mbot_received_time;
+extern serial_mbot_rob311_feedback_t mbot_rob311_feedback;
 
 enum drive_modes
 {
