@@ -13,7 +13,7 @@ uint64_t global_pico_time = 0;
 bool global_comms_status = COMMS_ERROR;
 mbot_bhy_config_t mbot_imu_config;
 mbot_bhy_data_t mbot_imu_data;
-
+static uint64_t last_cmd_utime = 0;
 // Forward declaration for internal helper function
 int mbot_init_pico(void);
 int mbot_init_hardware(void);
@@ -57,6 +57,12 @@ bool mbot_loop(repeating_timer_t *rt)
         mbot_motor_set_duty(MOT_R, mbot_motor_pwm_cmd.pwm[MOT_R]);
         mbot_motor_set_duty(MOT_L, mbot_motor_pwm_cmd.pwm[MOT_L]);
         mbot_motor_set_duty(MOT_B, mbot_motor_pwm_cmd.pwm[MOT_B]);
+
+        // Print latency every time a new command is received
+        if (mbot_motor_pwm_cmd.utime != last_cmd_utime) {
+            printf("pi to pico one way latency: %lld\n", (long long)(to_us_since_boot(get_absolute_time()) + timestamp_offset - mbot_motor_pwm_cmd.utime));
+            last_cmd_utime = mbot_motor_pwm_cmd.utime;
+        }
 
         // write the Rob311 feedback to serial
         comms_write_topic(MBOT_ROB311_FEEDBACK, &mbot_rob311_feedback);
