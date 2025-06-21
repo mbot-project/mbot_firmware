@@ -3,14 +3,23 @@ import lcm
 import threading
 from mbot_lcm_msgs.mbot_motor_pwm_t import mbot_motor_pwm_t
 from mbot_lcm_msgs.mbot_rob311_feedback_t import mbot_rob311_feedback_t
+import RPi.GPIO as GPIO
 
 # Global flag to control the listening thread
 listening = False
 
+# GPIO PINS
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(27, GPIO.OUT)
+GPIO.setup(22, GPIO.OUT)
+GPIO.output(27, GPIO.LOW)
+GPIO.output(22, GPIO.LOW)
+
 def feedback_handler(channel, data):
     """Callback function to handle received mbot_rob311_feedback_t messages"""
+    GPIO.output(27, GPIO.HIGH)
+    GPIO.output(27, GPIO.LOW)
     msg = mbot_rob311_feedback_t.decode(data)
-    print(f"latency: {int(time.time() * 1e6)-msg.utime}")
 
 def lcm_listener(lc):
     """Function to continuously listen for LCM messages in a separate thread"""
@@ -52,6 +61,8 @@ def main():
             command.pwm[1] = pwm
             command.pwm[2] = pwm
             lc.publish("MBOT_MOTOR_PWM_CMD", command.encode())
+            GPIO.output(22, GPIO.HIGH)
+            GPIO.output(22, GPIO.LOW)
             time.sleep(command_interval)
 
         # Stop the robot
@@ -60,6 +71,8 @@ def main():
         command.pwm[0] = 0.0
         command.pwm[1] = 0.0
         command.pwm[2] = 0.0
+        GPIO.output(22, GPIO.HIGH)
+        GPIO.output(22, GPIO.LOW)
         lc.publish("MBOT_MOTOR_PWM_CMD", command.encode())
         
         print("Motor commands completed. Listening for 5 more seconds...")
@@ -80,6 +93,7 @@ def main():
         listening = False
         print("Stopping LCM listener...")
         listener_thread.join(timeout=1)  # Wait up to 1 second for thread to finish
-
+        GPIO.cleanup()
+        print("GPIO cleaned up")
 if __name__ == "__main__":
     main()

@@ -2,6 +2,7 @@
  * Minimal MBot v311 firmware – only publishes mbot_rob311_feedback_t.
  */
 #include "mbot_311_firmware.h"
+#include <hardware/timer.h>    // for busy_wait_us_32()
 #pragma pack(1)
 
 // Global Variables and Forward Declarations
@@ -17,6 +18,9 @@ static uint64_t last_cmd_utime = 0;
 // Forward declaration for internal helper function
 int mbot_init_pico(void);
 int mbot_init_hardware(void);
+
+#define DEBUG_CMD_PIN 0
+#define DEBUG_FB_PIN 1
 
 /*********************************************************************
  * Main Control Functions
@@ -66,6 +70,10 @@ bool mbot_loop(repeating_timer_t *rt)
 
         // write the Rob311 feedback to serial
         comms_write_topic(MBOT_ROB311_FEEDBACK, &mbot_rob311_feedback);
+        // TODO: HERE toggle a GPIO pin to indicate that the feedback was sent
+        gpio_put(DEBUG_FB_PIN, 1);
+        busy_wait_us_32(10);
+        gpio_put(DEBUG_FB_PIN, 0);
     }
     // comparing current pico time against the last successful communication timestamp(global_pico_time)
     uint64_t timeout = to_us_since_boot(get_absolute_time()) - global_pico_time;
@@ -165,6 +173,15 @@ int mbot_init_hardware(void){
     adc_gpio_init(27);
     adc_gpio_init(28);
     adc_gpio_init(29);
+
+    // Initialize debug GPIO pins for latency measurement
+    gpio_init(DEBUG_CMD_PIN);
+    gpio_set_dir(DEBUG_CMD_PIN, GPIO_OUT);
+    gpio_put(DEBUG_CMD_PIN, 0);   // ensure low at start
+
+    gpio_init(DEBUG_FB_PIN);
+    gpio_set_dir(DEBUG_FB_PIN, GPIO_OUT);
+    gpio_put(DEBUG_FB_PIN, 0);
 
     mbot_init_fram();
     return MBOT_OK;

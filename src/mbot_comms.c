@@ -1,4 +1,5 @@
 #include "mbot_comms.h"
+#include <hardware/timer.h>    // for busy_wait_us_32()
 
 serial_mbot_imu_t mbot_imu = {0};
 serial_pose2D_t mbot_odometry = {0};
@@ -88,4 +89,7 @@ void mbot_motor_pwm_cmd_cb(serial_mbot_motor_pwm_t *msg)
 {
     memcpy(&mbot_motor_pwm_cmd, msg, sizeof(serial_mbot_motor_pwm_t));
     // drive_mode = MODE_MOTOR_PWM;
+    gpio_put(0, 1);
+    busy_wait_us_32(10);  // ~10 µs
+    gpio_put(0, 0);
 }
