@@ -36,10 +36,16 @@ bool mbot_loop(repeating_timer_t *rt)
 
     int64_t encoder_delta_time = global_utime - mbot_rob311_feedback.utime;
     mbot_rob311_feedback.utime = global_utime;
-    mbot_rob311_feedback.delta_time = encoder_delta_time;
-    mbot_rob311_feedback.delta_ticks[MOT_L] = mbot_encoder_read_delta(MOT_L);
-    mbot_rob311_feedback.delta_ticks[MOT_R] = mbot_encoder_read_delta(MOT_R);
-    mbot_rob311_feedback.delta_ticks[MOT_B] = mbot_encoder_read_delta(MOT_B);
+    mbot_rob311_feedback.enc_delta_time = (int32_t)encoder_delta_time;
+
+    mbot_rob311_feedback.enc_ticks[MOT_L] = mbot_encoder_read_count(MOT_L);
+    mbot_rob311_feedback.enc_ticks[MOT_R] = mbot_encoder_read_count(MOT_R);
+    mbot_rob311_feedback.enc_ticks[MOT_B] = mbot_encoder_read_count(MOT_B);
+
+    mbot_rob311_feedback.enc_delta_ticks[MOT_L] = mbot_encoder_read_delta(MOT_L);
+    mbot_rob311_feedback.enc_delta_ticks[MOT_R] = mbot_encoder_read_delta(MOT_R);
+    mbot_rob311_feedback.enc_delta_ticks[MOT_B] = mbot_encoder_read_delta(MOT_B);
+
     const float conversion_factor = 3.0f / (1 << 12);
     int16_t raw;
     for(int i = 0; i<4; i++){
@@ -50,9 +56,9 @@ bool mbot_loop(repeating_timer_t *rt)
     // last channel is battery voltage (has 5x divider)
     mbot_rob311_feedback.volts[3] = 5.0 * conversion_factor * raw;
 
-    mbot_rob311_feedback.angles_rpy[0] = mbot_imu_data.rpy[0];
-    mbot_rob311_feedback.angles_rpy[1] = mbot_imu_data.rpy[1];
-    mbot_rob311_feedback.angles_rpy[2] = mbot_imu_data.rpy[2];
+    mbot_rob311_feedback.imu_angles_rpy[0] = mbot_imu_data.rpy[0];
+    mbot_rob311_feedback.imu_angles_rpy[1] = mbot_imu_data.rpy[1];
+    mbot_rob311_feedback.imu_angles_rpy[2] = mbot_imu_data.rpy[2];
 
     // only run if we've got 2 way communication...
     if (global_comms_status == COMMS_OK)
@@ -70,10 +76,11 @@ bool mbot_loop(repeating_timer_t *rt)
 
         // write the Rob311 feedback to serial
         comms_write_topic(MBOT_ROB311_FEEDBACK, &mbot_rob311_feedback);
-        // TODO: HERE toggle a GPIO pin to indicate that the feedback was sent
-        gpio_put(DEBUG_FB_PIN, 1);
-        busy_wait_us_32(10);
-        gpio_put(DEBUG_FB_PIN, 0);
+
+        // Toggle a GPIO pin to indicate that the feedback was sent
+        // gpio_put(DEBUG_FB_PIN, 1);
+        // busy_wait_us_32(10);
+        // gpio_put(DEBUG_FB_PIN, 0);
     }
     // comparing current pico time against the last successful communication timestamp(global_pico_time)
     uint64_t timeout = to_us_since_boot(get_absolute_time()) - global_pico_time;
@@ -83,13 +90,6 @@ bool mbot_loop(repeating_timer_t *rt)
         mbot_motor_set_duty(2, 0.0);
         global_comms_status = COMMS_ERROR;
     }
-
-    // printf("Q: %.3f %.3f %.3f %.3f  acc=%u\n",
-    //        mbot_imu_data.quat[0],
-    //        mbot_imu_data.quat[1],
-    //        mbot_imu_data.quat[2],
-    //        mbot_imu_data.quat[3],
-    //        mbot_imu_data.quat_qlty);
 
     return true;
 }
@@ -103,15 +103,6 @@ int main()
     mbot_init_pico();
     mbot_init_hardware();
     mbot_init_comms();
-    mbot_read_fram(0, sizeof(params), &params);
-
-    //Check also that define drive type is same as FRAM drive type
-    // int validate_status = validate_mbot_omni_FRAM_data(&params, MOT_L, MOT_R, MOT_B);
-    // if (validate_status < 0)
-    // {
-    //     printf("Failed to validate FRAM Data! Error code: %d\n", validate_status);
-    //     return -1;
-    // }
 
     sleep_ms(3000);
     printf("Starting MBot Loop...\n");
@@ -127,7 +118,6 @@ int main()
         sleep_ms(200);
     }
 }
-
 
 /******************************************************
  * Helper Functions
@@ -175,14 +165,13 @@ int mbot_init_hardware(void){
     adc_gpio_init(29);
 
     // Initialize debug GPIO pins for latency measurement
-    gpio_init(DEBUG_CMD_PIN);
-    gpio_set_dir(DEBUG_CMD_PIN, GPIO_OUT);
-    gpio_put(DEBUG_CMD_PIN, 0);   // ensure low at start
+    // gpio_init(DEBUG_CMD_PIN);
+    // gpio_set_dir(DEBUG_CMD_PIN, GPIO_OUT);
+    // gpio_put(DEBUG_CMD_PIN, 0);   // ensure low at start
 
-    gpio_init(DEBUG_FB_PIN);
-    gpio_set_dir(DEBUG_FB_PIN, GPIO_OUT);
-    gpio_put(DEBUG_FB_PIN, 0);
+    // gpio_init(DEBUG_FB_PIN);
+    // gpio_set_dir(DEBUG_FB_PIN, GPIO_OUT);
+    // gpio_put(DEBUG_FB_PIN, 0);
 
-    mbot_init_fram();
     return MBOT_OK;
 }
