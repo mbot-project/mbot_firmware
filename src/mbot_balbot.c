@@ -2,7 +2,6 @@
  * Minimal MBot Balbot firmware – only publishes mbot_balbot_feedback_t.
  */
 #include "mbot_balbot.h"
-#include <hardware/timer.h>    // for busy_wait_us_32()
 #pragma pack(1)
 
 // Global Variables and Forward Declarations
@@ -15,13 +14,9 @@ bool global_comms_status = COMMS_ERROR;
 int drive_mode = 0;
 mbot_bhy_config_t mbot_imu_config;
 mbot_bhy_data_t mbot_imu_data;
-static uint64_t last_cmd_utime = 0;
 // Forward declaration for internal helper function
 int mbot_init_pico(void);
 int mbot_init_hardware(void);
-
-#define DEBUG_CMD_PIN 0
-#define DEBUG_FB_PIN 1
 
 /*********************************************************************
  * Main Control Functions
@@ -69,19 +64,8 @@ bool mbot_loop(repeating_timer_t *rt)
         mbot_motor_set_duty(MOT_L, mbot_motor_pwm_cmd.pwm[MOT_L]);
         mbot_motor_set_duty(MOT_B, mbot_motor_pwm_cmd.pwm[MOT_B]);
 
-        // Print latency every time a new command is received
-        if (mbot_motor_pwm_cmd.utime != last_cmd_utime) {
-            printf("pi to pico one way latency: %lld\n", (long long)(to_us_since_boot(get_absolute_time()) + timestamp_offset - mbot_motor_pwm_cmd.utime));
-            last_cmd_utime = mbot_motor_pwm_cmd.utime;
-        }
-
         // write the Balbot feedback to serial
         comms_write_topic(MBOT_BALBOT_FEEDBACK, &mbot_balbot_feedback);
-
-        // Toggle a GPIO pin to indicate that the feedback was sent
-        // gpio_put(DEBUG_FB_PIN, 1);
-        // busy_wait_us_32(10);
-        // gpio_put(DEBUG_FB_PIN, 0);
     }
     // comparing current pico time against the last successful communication timestamp(global_pico_time)
     uint64_t timeout = to_us_since_boot(get_absolute_time()) - global_pico_time;
@@ -98,7 +82,7 @@ bool mbot_loop(repeating_timer_t *rt)
 int main()
 {
     printf("********************************\n");
-    printf("*  MBot Omni Firmware v%s   *\n", VERSION);
+    printf("*  MBot Balbot Firmware v%s   *\n", VERSION);
     printf("********************************\n");
 
     mbot_init_pico();
@@ -164,15 +148,6 @@ int mbot_init_hardware(void){
     adc_gpio_init(27);
     adc_gpio_init(28);
     adc_gpio_init(29);
-
-    // Initialize debug GPIO pins for latency measurement
-    // gpio_init(DEBUG_CMD_PIN);
-    // gpio_set_dir(DEBUG_CMD_PIN, GPIO_OUT);
-    // gpio_put(DEBUG_CMD_PIN, 0);   // ensure low at start
-
-    // gpio_init(DEBUG_FB_PIN);
-    // gpio_set_dir(DEBUG_FB_PIN, GPIO_OUT);
-    // gpio_put(DEBUG_FB_PIN, 0);
 
     return MBOT_OK;
 }

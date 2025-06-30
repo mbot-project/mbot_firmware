@@ -1,24 +1,19 @@
+"""
+This script is used to test the Balbot firmware.
+It will move the robot forward for 5 seconds, then stop.
+"""
+
 import time
 import lcm
 import threading
 from mbot_lcm_msgs.mbot_motor_pwm_t import mbot_motor_pwm_t
 from mbot_lcm_msgs.mbot_balbot_feedback_t import mbot_balbot_feedback_t
-import RPi.GPIO as GPIO
 
 # Global flag to control the listening thread
 listening = False
 
-# GPIO PINS
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(27, GPIO.OUT)
-GPIO.setup(22, GPIO.OUT)
-GPIO.output(27, GPIO.LOW)
-GPIO.output(22, GPIO.LOW)
-
 def feedback_handler(channel, data):
     """Callback function to handle received mbot_balbot_feedback_t messages"""
-    GPIO.output(27, GPIO.HIGH)
-    GPIO.output(27, GPIO.LOW)
     msg = mbot_balbot_feedback_t.decode(data)
 
 def lcm_listener(lc):
@@ -48,36 +43,25 @@ def main():
 
     # Parameters
     pwm = 0.5
-    move_time = 6  # seconds
-    command_interval = 1  # seconds between commands
+    move_time = 5  # seconds
 
     try:
-        for _ in range(move_time):
-            # Prepare and send command
-            command = mbot_motor_pwm_t()
-            cmd_utime = int(time.time() * 1e6)
-            command.utime = cmd_utime
-            command.pwm[0] = pwm
-            command.pwm[1] = pwm
-            command.pwm[2] = pwm
-            lc.publish("MBOT_MOTOR_PWM_CMD", command.encode())
-            GPIO.output(22, GPIO.HIGH)
-            GPIO.output(22, GPIO.LOW)
-            time.sleep(command_interval)
+        command = mbot_motor_pwm_t()
+        cmd_utime = int(time.time() * 1e6)
+        command.utime = cmd_utime
+        command.pwm[0] = pwm
+        command.pwm[1] = pwm
+        command.pwm[2] = pwm
+        lc.publish("MBOT_MOTOR_PWM_CMD", command.encode())
+        time.sleep(move_time)
 
         # Stop the robot
-        command = mbot_motor_pwm_t()
         command.utime = int(time.time() * 1e6)
         command.pwm[0] = 0.0
         command.pwm[1] = 0.0
         command.pwm[2] = 0.0
-        GPIO.output(22, GPIO.HIGH)
-        GPIO.output(22, GPIO.LOW)
         lc.publish("MBOT_MOTOR_PWM_CMD", command.encode())
-        
-        print("Motor commands completed. Listening for 5 more seconds...")
-        time.sleep(5)  # Continue listening for 5 more seconds after stopping motors
-        
+
     except KeyboardInterrupt:
         print("\nKeyboard interrupt received. Stopping motors...")
         # Emergency stop
@@ -93,7 +77,5 @@ def main():
         listening = False
         print("Stopping LCM listener...")
         listener_thread.join(timeout=1)  # Wait up to 1 second for thread to finish
-        GPIO.cleanup()
-        print("GPIO cleaned up")
 if __name__ == "__main__":
     main()
