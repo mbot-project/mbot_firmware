@@ -71,19 +71,13 @@ int mbot_motor_set_duty(uint8_t ch, float duty) {
         return MBOT_ERROR;
     }
     uint16_t slice = pwm_gpio_to_slice_num(motor_en[ch]);
-    //Check if out of range
-    if(duty >= 0.995){
-        //fprintf(stderr, "Warning: duty cycle out of range, setting to maximum \n");
-        duty = 0.995;
-    }
-    else if(duty <= -0.995){
-        // This is a HACK.  The PWM gets set to 0 if the duty is -1.0, why?!?
-        //fprintf(stderr, "Warning: duty cycle out of range, setting to maximum \n");
-        duty = -0.995;
-    }
+
     // Check for direction
     bool direction = (duty >= 0);
     uint16_t level = (uint16_t) pwm_wraps[slice] * ( direction ? duty : -duty);
+    if (duty == 1.0 || duty == -1.0){
+        level = pwm_wraps[slice] + 1;
+    }
     gpio_put(motor_ph[ch], direction);
     uint16_t pwm_chan = pwm_gpio_to_channel(motor_en[ch]);
     pwm_set_chan_level(slice, pwm_chan, level);
