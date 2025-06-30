@@ -1,6 +1,7 @@
 #include <mbot/utils/utils.h>
 #include <pico/stdlib.h>
 #include <hardware/i2c.h>
+#include <hardware/gpio.h>
 #include <mbot/defs/mbot_params.h>
 
 //Always operates on the I2C0 line.
@@ -14,6 +15,7 @@ int mbot_init_i2c(){
 int _mbot_init_i2c(unsigned int pico_sda_pin, unsigned int pico_scl_pin)
 {
     if(!_check_i2c0_enabled()){
+        _i2c_bus_recover(pico_sda_pin, pico_scl_pin);
         i2c_init(i2c0, 400 * 1000);
         gpio_set_function(pico_sda_pin, GPIO_FUNC_I2C);
         gpio_set_function(pico_scl_pin, GPIO_FUNC_I2C);
@@ -27,6 +29,41 @@ int _mbot_init_i2c(unsigned int pico_sda_pin, unsigned int pico_scl_pin)
 int _check_i2c0_enabled(){
     // 0x9C: I2C_ENABLE_STATUS has bit 0 = 1 when initialized and 0 when not (default 0)
     return *(volatile uint32_t*)(I2C0_BASE + 0x9C) & 1;
+}
+
+void _i2c_bus_recover(unsigned int sda_pin, unsigned int scl_pin)
+{
+    // Temporarily switch pins to GPIO w/ pull-ups
+    gpio_set_function(sda_pin, GPIO_FUNC_SIO);
+    gpio_set_function(scl_pin, GPIO_FUNC_SIO);
+    gpio_pull_up(sda_pin);
+    gpio_pull_up(scl_pin);
+
+    gpio_set_dir(sda_pin, GPIO_IN);   // to listen to pin state
+    gpio_set_dir(scl_pin, GPIO_OUT);  // to control the pin state
+    gpio_put(scl_pin, 1);             // make sure SCL is high
+
+    // If SCL is being held low we cannot recover in software
+    if(!gpio_get(scl_pin)){
+        return;
+    }
+
+    // Clock out up to 16 pulses while SDA stays low
+    for(int i = 0; i < 16 && !gpio_get(sda_pin); i++){
+        gpio_put(scl_pin, 0);
+        sleep_us(5);
+        gpio_put(scl_pin, 1);
+        sleep_us(5);
+    }
+
+    // Generate a STOP condition (SDA low -> SCL high -> SDA high)
+    gpio_set_dir(sda_pin, GPIO_OUT);
+    gpio_put(sda_pin, 0);
+    sleep_us(5);
+    gpio_put(scl_pin, 1);
+    sleep_us(5);
+    gpio_set_dir(sda_pin, GPIO_IN);   // release SDA
+    sleep_us(5);
 }
 
 //Validates mbot classic calibration in FRAM.
@@ -100,6 +137,3 @@ int validate_mbot_omni_FRAM_data(mbot_params_t* params, int mot_left, int mot_ri
 
     return 0;
 }
-
-
-
