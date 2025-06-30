@@ -50,14 +50,14 @@ endfunction()
 
 # MBOT Omni
 add_definitions(-DMBOT_TYPE_OMNI)
-add_executable(mbot_311_firmware
+add_executable(mbot_balbot
   src/mbot_controller.c
   src/mbot_odometry.c
   src/mbot_print.c
   src/mbot_comms.c
-  src/mbot_311_firmware.c
+  src/mbot_balbot.c
 )
-configure_mbot(mbot_311_firmware)
+configure_mbot(mbot_balbot)
 
 # Motor Calibration
 set(MBOT_CALIBRATE_OMNI mbot_calibrate_omni)

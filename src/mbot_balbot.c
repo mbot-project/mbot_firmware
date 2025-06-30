@@ -1,7 +1,7 @@
 /**
  * Minimal MBot v311 firmware – only publishes mbot_rob311_feedback_t.
  */
-#include "mbot_311_firmware.h"
+#include "mbot_balbot.h"
 #include <hardware/timer.h>    // for busy_wait_us_32()
 #pragma pack(1)
 

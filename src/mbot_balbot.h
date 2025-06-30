@@ -1,5 +1,5 @@
-#ifndef MBOT_311_FIRMWARE_H
-#define MBOT_311_FIRMWARE_H
+#ifndef MBOT_BALBOT_H
+#define MBOT_BALBOT_H
 
 #include <pico/stdlib.h>
 #include <pico/mutex.h>
