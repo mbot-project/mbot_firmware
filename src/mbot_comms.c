@@ -1,5 +1,4 @@
 #include "mbot_comms.h"
-#include <hardware/timer.h>    // for busy_wait_us_32()
 
 serial_mbot_imu_t mbot_imu = {0};
 serial_pose2D_t mbot_odometry = {0};
@@ -12,7 +11,7 @@ serial_twist2D_t mbot_vel_cmd = {0};
 serial_mbot_motor_pwm_t mbot_motor_pwm_cmd = {0};
 serial_mbot_motor_vel_t mbot_motor_vel_cmd = {0};
 serial_timestamp_t mbot_received_time = {0};
-serial_mbot_rob311_feedback_t mbot_rob311_feedback = {0};
+serial_mbot_balbot_feedback_t mbot_balbot_feedback = {0};
 
 void register_topics()
 {
@@ -32,7 +31,7 @@ void register_topics()
     comms_register_topic(MBOT_VEL, sizeof(serial_twist2D_t), (Deserialize)&twist2D_t_deserialize, (Serialize)&twist2D_t_serialize, NULL);
     comms_register_topic(MBOT_MOTOR_VEL, sizeof(serial_mbot_motor_vel_t), (Deserialize)&mbot_motor_vel_t_deserialize, (Serialize)&mbot_motor_vel_t_serialize, NULL);
     comms_register_topic(MBOT_MOTOR_PWM, sizeof(serial_mbot_motor_pwm_t), (Deserialize)&mbot_motor_pwm_t_deserialize, (Serialize)&mbot_motor_pwm_t_serialize, NULL);
-    comms_register_topic(MBOT_ROB311_FEEDBACK, sizeof(serial_mbot_rob311_feedback_t), (Deserialize)&mbot_rob311_feedback_t_deserialize, (Serialize)&mbot_rob311_feedback_t_serialize, NULL);
+    comms_register_topic(MBOT_BALBOT_FEEDBACK, sizeof(serial_mbot_balbot_feedback_t), (Deserialize)&mbot_balbot_feedback_t_deserialize, (Serialize)&mbot_balbot_feedback_t_serialize, NULL);
 }
 
 int mbot_init_comms(void){
@@ -76,20 +75,17 @@ void reset_odometry_cb(serial_pose2D_t *msg)
 void mbot_vel_cmd_cb(serial_twist2D_t *msg)
 {
     memcpy(&mbot_vel_cmd, msg, sizeof(serial_twist2D_t));
-    // drive_mode = MODE_MBOT_VEL;
+    drive_mode = MODE_MBOT_VEL;
 }
 
 void mbot_motor_vel_cmd_cb(serial_mbot_motor_vel_t *msg)
 {
     memcpy(&mbot_motor_vel_cmd, msg, sizeof(serial_mbot_motor_vel_t));
-    // drive_mode = MODE_MOTOR_VEL_OL;
+    drive_mode = MODE_MOTOR_VEL_OL;
 }
 
 void mbot_motor_pwm_cmd_cb(serial_mbot_motor_pwm_t *msg)
 {
     memcpy(&mbot_motor_pwm_cmd, msg, sizeof(serial_mbot_motor_pwm_t));
-    // drive_mode = MODE_MOTOR_PWM;
-    // gpio_put(0, 1);
-    // busy_wait_us_32(10);  // ~10 µs
-    // gpio_put(0, 0);
+    drive_mode = MODE_MOTOR_PWM;
 }

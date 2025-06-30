@@ -2,7 +2,7 @@ import time
 import lcm
 import threading
 from mbot_lcm_msgs.mbot_motor_pwm_t import mbot_motor_pwm_t
-from mbot_lcm_msgs.mbot_rob311_feedback_t import mbot_rob311_feedback_t
+from mbot_lcm_msgs.mbot_balbot_feedback_t import mbot_balbot_feedback_t
 import RPi.GPIO as GPIO
 
 # Global flag to control the listening thread
@@ -16,10 +16,10 @@ GPIO.output(27, GPIO.LOW)
 GPIO.output(22, GPIO.LOW)
 
 def feedback_handler(channel, data):
-    """Callback function to handle received mbot_rob311_feedback_t messages"""
+    """Callback function to handle received mbot_balbot_feedback_t messages"""
     GPIO.output(27, GPIO.HIGH)
     GPIO.output(27, GPIO.LOW)
-    msg = mbot_rob311_feedback_t.decode(data)
+    msg = mbot_balbot_feedback_t.decode(data)
 
 def lcm_listener(lc):
     """Function to continuously listen for LCM messages in a separate thread"""
@@ -38,7 +38,7 @@ def main():
     lc = lcm.LCM("udpm://239.255.76.67:7667?ttl=0")
     
     # Subscribe to feedback messages
-    subscription = lc.subscribe("MBOT_ROB311_FEEDBACK", feedback_handler)
+    subscription = lc.subscribe("MBOT_BALBOT_FEEDBACK", feedback_handler)
     
     # Start the LCM listener thread
     listening = True

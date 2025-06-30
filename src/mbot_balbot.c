@@ -1,5 +1,5 @@
 /**
- * Minimal MBot v311 firmware – only publishes mbot_rob311_feedback_t.
+ * Minimal MBot Balbot firmware – only publishes mbot_balbot_feedback_t.
  */
 #include "mbot_balbot.h"
 #include <hardware/timer.h>    // for busy_wait_us_32()
@@ -12,6 +12,7 @@ uint64_t timestamp_offset = 0;
 uint64_t global_utime = 0;
 uint64_t global_pico_time = 0;
 bool global_comms_status = COMMS_ERROR;
+int drive_mode = 0;
 mbot_bhy_config_t mbot_imu_config;
 mbot_bhy_data_t mbot_imu_data;
 static uint64_t last_cmd_utime = 0;
@@ -34,31 +35,31 @@ bool mbot_loop(repeating_timer_t *rt)
 {
     global_utime = to_us_since_boot(get_absolute_time()) + timestamp_offset;
 
-    int64_t encoder_delta_time = global_utime - mbot_rob311_feedback.utime;
-    mbot_rob311_feedback.utime = global_utime;
-    mbot_rob311_feedback.enc_delta_time = (int32_t)encoder_delta_time;
+    int64_t encoder_delta_time = global_utime - mbot_balbot_feedback.utime;
+    mbot_balbot_feedback.utime = global_utime;
+    mbot_balbot_feedback.enc_delta_time = (int32_t)encoder_delta_time;
 
-    mbot_rob311_feedback.enc_ticks[MOT_L] = mbot_encoder_read_count(MOT_L);
-    mbot_rob311_feedback.enc_ticks[MOT_R] = mbot_encoder_read_count(MOT_R);
-    mbot_rob311_feedback.enc_ticks[MOT_B] = mbot_encoder_read_count(MOT_B);
+    mbot_balbot_feedback.enc_ticks[MOT_L] = mbot_encoder_read_count(MOT_L);
+    mbot_balbot_feedback.enc_ticks[MOT_R] = mbot_encoder_read_count(MOT_R);
+    mbot_balbot_feedback.enc_ticks[MOT_B] = mbot_encoder_read_count(MOT_B);
 
-    mbot_rob311_feedback.enc_delta_ticks[MOT_L] = mbot_encoder_read_delta(MOT_L);
-    mbot_rob311_feedback.enc_delta_ticks[MOT_R] = mbot_encoder_read_delta(MOT_R);
-    mbot_rob311_feedback.enc_delta_ticks[MOT_B] = mbot_encoder_read_delta(MOT_B);
+    mbot_balbot_feedback.enc_delta_ticks[MOT_L] = mbot_encoder_read_delta(MOT_L);
+    mbot_balbot_feedback.enc_delta_ticks[MOT_R] = mbot_encoder_read_delta(MOT_R);
+    mbot_balbot_feedback.enc_delta_ticks[MOT_B] = mbot_encoder_read_delta(MOT_B);
 
     const float conversion_factor = 3.0f / (1 << 12);
     int16_t raw;
     for(int i = 0; i<4; i++){
         adc_select_input(i);
         raw = adc_read();
-        mbot_rob311_feedback.volts[i] = conversion_factor * raw;
+        mbot_balbot_feedback.volts[i] = conversion_factor * raw;
     }
     // last channel is battery voltage (has 5x divider)
-    mbot_rob311_feedback.volts[3] = 5.0 * conversion_factor * raw;
+    mbot_balbot_feedback.volts[3] = 5.0 * conversion_factor * raw;
 
-    mbot_rob311_feedback.imu_angles_rpy[0] = mbot_imu_data.rpy[0];
-    mbot_rob311_feedback.imu_angles_rpy[1] = mbot_imu_data.rpy[1];
-    mbot_rob311_feedback.imu_angles_rpy[2] = mbot_imu_data.rpy[2];
+    mbot_balbot_feedback.imu_angles_rpy[0] = mbot_imu_data.rpy[0];
+    mbot_balbot_feedback.imu_angles_rpy[1] = mbot_imu_data.rpy[1];
+    mbot_balbot_feedback.imu_angles_rpy[2] = mbot_imu_data.rpy[2];
 
     // only run if we've got 2 way communication...
     if (global_comms_status == COMMS_OK)
@@ -74,8 +75,8 @@ bool mbot_loop(repeating_timer_t *rt)
             last_cmd_utime = mbot_motor_pwm_cmd.utime;
         }
 
-        // write the Rob311 feedback to serial
-        comms_write_topic(MBOT_ROB311_FEEDBACK, &mbot_rob311_feedback);
+        // write the Balbot feedback to serial
+        comms_write_topic(MBOT_BALBOT_FEEDBACK, &mbot_balbot_feedback);
 
         // Toggle a GPIO pin to indicate that the feedback was sent
         // gpio_put(DEBUG_FB_PIN, 1);
