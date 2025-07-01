@@ -11,6 +11,7 @@ serial_twist2D_t mbot_vel_cmd = {0};
 serial_mbot_motor_pwm_t mbot_motor_pwm_cmd = {0};
 serial_mbot_motor_vel_t mbot_motor_vel_cmd = {0};
 serial_timestamp_t mbot_received_time = {0};
+serial_mbot_balbot_feedback_t mbot_balbot_feedback = {0};
 
 void register_topics()
 {
@@ -30,7 +31,7 @@ void register_topics()
     comms_register_topic(MBOT_VEL, sizeof(serial_twist2D_t), (Deserialize)&twist2D_t_deserialize, (Serialize)&twist2D_t_serialize, NULL);
     comms_register_topic(MBOT_MOTOR_VEL, sizeof(serial_mbot_motor_vel_t), (Deserialize)&mbot_motor_vel_t_deserialize, (Serialize)&mbot_motor_vel_t_serialize, NULL);
     comms_register_topic(MBOT_MOTOR_PWM, sizeof(serial_mbot_motor_pwm_t), (Deserialize)&mbot_motor_pwm_t_deserialize, (Serialize)&mbot_motor_pwm_t_serialize, NULL);
-
+    comms_register_topic(MBOT_BALBOT_FEEDBACK, sizeof(serial_mbot_balbot_feedback_t), (Deserialize)&mbot_balbot_feedback_t_deserialize, (Serialize)&mbot_balbot_feedback_t_serialize, NULL);
 }
 
 int mbot_init_comms(void){

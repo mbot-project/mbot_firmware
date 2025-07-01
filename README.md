@@ -32,23 +32,52 @@ Firmware designed for deployment on the Raspberry Pi Pico & [Robotics Control Bo
     ```bash
     mkdir build
     cd build
-    cmake [-DMBOT_TYPE=<MBOT-TYPE> -DENC=<ENC-RES> -DOMNI_WHEEL_DIAMETER=<WHEEL-DIA>] ..
+    cmake [-DMBOT_TYPE=<TYPE> -DENC=<ENC_RES> -DWHEEL_DIAMETER=<DIA_MM> -DGEAR_RATIO=<RATIO>] ..
     make
     ```
+    Optional CMake flags:
+    * `MBOT_TYPE`: `OMNI`, `CLASSIC`, or `BALBOT`
+    * `ENC`: Encoder resolution
+    * `WHEEL_DIAMETER`: Wheel diameter (in mm)
+    * `GEAR_RATIO`: Motor gear ratio
+    
+**If you don’t** provide any values, all executables will be built using the default settings in `mbot_firmware/include/config`. All you need to do is:
+```bash
+cmake ..
+make
+```
 
+**If you do** want to use custom values, you can override the defaults by passing them to cmake. For example, if you have MBot OMNI, with encoder resolution 50, wheel diameter 100 mm, gear ratio 78:
+```bash
+cmake -DMBOT_TYPE=OMNI -DENC=50 -DWHEEL_DIAMETER=100 -DGEAR_RATIO=78 ..
+make
+```
 
-### Specifying the MBot type
+**⚠️ Important: Always Check CMake Output!!!**
 
-Various parameters can be configured.
+CMake might keep old settings in its cache. Double-check the output to make sure your new values were applied correctly.
+```bash
+# Previously run:
+cmake -DMBOT_TYPE=OMNI -DENC=50 -DWHEEL_DIAMETER=100 -DGEAR_RATIO=78 ..
 
-* `MBOT_TYPE` (**Required**): Specify `OMNI` or `CLASSIC`. Only the firmware for the specified robot type will be generated. 
-* `ENC`: The encoder resolution. Currently the MBot Platform comes in `20`, `40`, or `48`. 
-* `OMNI_WHEEL_DIAMETER`: The wheel diameter for the `OMNI` robot type, in millimeters. The MBot Omnis have `96` or `101`. This option is ignored for type `CLASSIC`.
+# Then now run this:
+cmake -DMBOT_TYPE=CLASSIC -DENC=50 ..
+
+# Output:
+Building code for MBot type CLASSIC
+-- Using encoder resolution: 50
+-- Using wheel diameter: 100      <--- ⚠️ Still using old value!
+-- Using gear ratio: 78           <--- ⚠️ Still using old value!
+```
+If this happens, clear the cache by deleting the build folder:
+```bash
+# remove the entire build folder
+rm -rf build
+```
+Then repeat the build steps from above.
 
 ## Code Structure
 The students are required to make changes only in the `/src` directory and test the robot using scripts located in the `/python` directory or by adding their own scripts there. Everything else within the mbot_firmware is set to default and should not be directly modified by the students.
-
-More details can be found under [mbot_documentation](https://github.com/mbot-project/mbot_documentation) repository.
 
 ## MBot Classic Usage and Features
 > For MBot Classic use, you can also check detailed system setup guide [here](https://rob550-docs.github.io/docs/botlab/setup-guide/mbot-system-setup.html).

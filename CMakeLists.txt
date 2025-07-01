@@ -4,46 +4,41 @@ set(CMAKE_PROJECT_VERSION 1.2.0 CACHE STRING "Project version")
 # Expose the version to the source code.
 add_definitions(-DVERSION="${CMAKE_PROJECT_VERSION}")
 
-# Add an option to toggle between CLASSIC and OMNI with CLASSIC as default
-set(MBOT_TYPE "CLASSIC" CACHE STRING "MBot type to build: CLASSIC or OMNI")
-set(ENC "" CACHE STRING "Encoder resolution: 20, 40, or 48")
-set(OMNI_WHEEL_DIAMETER "" CACHE STRING "Wheel diameter for the Omni in mm: 101 or 96")
+# Add an option to toggle between CLASSIC, OMNI, or BALBOT
+set(MBOT_TYPE "" CACHE STRING "MBot type to build (optional): CLASSIC, OMNI, or BALBOT")
+set(ENC "" CACHE STRING "Encoder resolution (optional)")
+set(WHEEL_DIAMETER "" CACHE STRING "Wheel diameter in mm (optional)")
+set(GEAR_RATIO "" CACHE STRING "Gear ratio (optional)")
 
-# Check that the user-defined option is either CLASSIC or OMNI
-if(NOT MBOT_TYPE STREQUAL "CLASSIC" AND NOT MBOT_TYPE STREQUAL "OMNI")
-  message(FATAL_ERROR "Invalid MBOT_TYPE. Choose either CLASSIC or OMNI.")
+# Check that the user-defined option is either CLASSIC, OMNI, or BALBOT
+if(MBOT_TYPE AND NOT (MBOT_TYPE STREQUAL "CLASSIC" OR MBOT_TYPE STREQUAL "OMNI" OR MBOT_TYPE STREQUAL "BALBOT"))
+  message(FATAL_ERROR "Invalid MBOT_TYPE. Choose CLASSIC, OMNI, or BALBOT.")
 endif()
 
-message("Building code for MBot type ${MBOT_TYPE}")
+if(MBOT_TYPE)
+  message("Building code for MBot type ${MBOT_TYPE}")
+else()
+  message("Building code for ALL MBot types")
+endif()
 
 set(NAME_SUFFIX "_v${CMAKE_PROJECT_VERSION}")
 
-# Validate the ENC value if it is set
 if(ENC)
-  if(NOT (ENC STREQUAL "20" OR ENC STREQUAL "40" OR ENC STREQUAL "48"))
-    message(FATAL_ERROR "Invalid ENC value. Choose 20, 40, or 48.")
-  elseif(MBOT_TYPE STREQUAL "OMNI" AND ENC STREQUAL "40")
-    message(FATAL_ERROR "ENC value 40 is invalid for the Omni. Choose 20 or 48.")
-  else()
-    add_definitions(-DUSER_ENCODER_RES=${ENC})
-    message(STATUS "Using encoder resolution: ${ENC}")
-    # Update the suffix with this encoder resolution.
-    set(NAME_SUFFIX "${NAME_SUFFIX}_enc${ENC}")
-  endif()
+  add_definitions(-DUSER_ENCODER_RES=${ENC})
+  message(STATUS "Using encoder resolution: ${ENC}")
+  set(NAME_SUFFIX "${NAME_SUFFIX}_enc${ENC}")
 endif()
 
-# Validate the OMNI_WHEEL_DIAMETER value if it is set
-if(OMNI_WHEEL_DIAMETER)
-  if (MBOT_TYPE STREQUAL "CLASSIC")
-    message(WARNING "Option OMNI_WHEEL_DIAMETER is only used for OMNI type. Ignoring.")
-  elseif(NOT (OMNI_WHEEL_DIAMETER STREQUAL "96" OR OMNI_WHEEL_DIAMETER STREQUAL "101"))
-    message(FATAL_ERROR "Invalid OMNI_WHEEL_DIAMETER value. Choose 96 or 101.")
-  else()
-    add_definitions(-DUSER_OMNI_WHEEL_DIAMETER=${OMNI_WHEEL_DIAMETER})
-    message(STATUS "Using Omni wheel diameter: ${OMNI_WHEEL_DIAMETER}")
-    # Update the suffix with this wheel diameter.
-    set(NAME_SUFFIX "${NAME_SUFFIX}_w${OMNI_WHEEL_DIAMETER}mm")
-  endif()
+if(WHEEL_DIAMETER)
+  add_definitions(-DUSER_WHEEL_DIAMETER=${WHEEL_DIAMETER})
+  message(STATUS "Using wheel diameter: ${WHEEL_DIAMETER}")
+  set(NAME_SUFFIX "${NAME_SUFFIX}_w${WHEEL_DIAMETER}mm")
+endif()
+
+if(GEAR_RATIO)
+  add_definitions(-DUSER_GEAR_RATIO=${GEAR_RATIO})
+  message(STATUS "Using gear ratio: ${GEAR_RATIO}")
+  set(NAME_SUFFIX "${NAME_SUFFIX}_gr${GEAR_RATIO}")
 endif()
 
 set(PICO_SDK_PATH ${CMAKE_SOURCE_DIR}/lib/pico-sdk)
@@ -56,6 +51,12 @@ set(CMAKE_CXX_STANDARD 17)
 
 # Initialize the SDK
 pico_sdk_init()
+
+# Override the default extra outputs helper, only creates UF2 files.
+# Comment this out to create all the files.
+macro(pico_add_extra_outputs target)
+  pico_add_uf2_output(${target})
+endmacro()
 
 add_compile_options(-Wall
   -Wno-format           # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int
@@ -92,10 +93,8 @@ function(configure_mbot target)
   pico_add_extra_outputs(${target})
 endfunction()
 
-
-if(MBOT_TYPE STREQUAL "CLASSIC")
+if(NOT MBOT_TYPE OR MBOT_TYPE STREQUAL "CLASSIC")
   # MBOT Classic Main.
-  add_definitions(-DMBOT_TYPE_CLASSIC)
   set(MBOT_CLASSIC mbot_classic${NAME_SUFFIX})
   add_executable(${MBOT_CLASSIC}
     src/mbot_controller.c
@@ -105,6 +104,7 @@ if(MBOT_TYPE STREQUAL "CLASSIC")
     src/mbot_classic.c
   )
   configure_mbot(${MBOT_CLASSIC})
+  target_compile_definitions(${MBOT_CLASSIC} PRIVATE MBOT_TYPE_CLASSIC)
 
   # Motor Calibration
   set(MBOT_CALIBRATE_CLASSIC mbot_calibrate_classic${NAME_SUFFIX})
@@ -118,6 +118,7 @@ if(MBOT_TYPE STREQUAL "CLASSIC")
     hardware_pwm
     rclib
   )
+  target_compile_definitions(${MBOT_CALIBRATE_CLASSIC} PRIVATE MBOT_TYPE_CLASSIC)
 
   pico_enable_stdio_usb(${MBOT_CALIBRATE_CLASSIC} 1)
   pico_enable_stdio_uart(${MBOT_CALIBRATE_CLASSIC} 0)
@@ -134,13 +135,14 @@ if(MBOT_TYPE STREQUAL "CLASSIC")
     hardware_pwm
     rclib
   )
+  target_compile_definitions(mbot_classic_motor_test PRIVATE MBOT_TYPE_CLASSIC)
   pico_enable_stdio_usb(mbot_classic_motor_test 1)
   pico_enable_stdio_uart(mbot_classic_motor_test 0)
   pico_add_extra_outputs(mbot_classic_motor_test)
+endif()
 
-elseif(MBOT_TYPE STREQUAL "OMNI")
+if(NOT MBOT_TYPE OR MBOT_TYPE STREQUAL "OMNI")
   # MBOT Omni
-  add_definitions(-DMBOT_TYPE_OMNI)
   set(MBOT_OMNI mbot_omni${NAME_SUFFIX})
   add_executable(${MBOT_OMNI}
     src/mbot_controller.c
@@ -150,6 +152,7 @@ elseif(MBOT_TYPE STREQUAL "OMNI")
     src/mbot_omni.c
   )
   configure_mbot(${MBOT_OMNI})
+  target_compile_definitions(${MBOT_OMNI} PRIVATE MBOT_TYPE_OMNI)
 
   # Motor Calibration
   set(MBOT_CALIBRATE_OMNI mbot_calibrate_omni${NAME_SUFFIX})
@@ -164,6 +167,7 @@ elseif(MBOT_TYPE STREQUAL "OMNI")
     hardware_adc
     rclib
   )
+  target_compile_definitions(${MBOT_CALIBRATE_OMNI} PRIVATE MBOT_TYPE_OMNI)
   pico_enable_stdio_usb(${MBOT_CALIBRATE_OMNI} 1)
   pico_enable_stdio_uart(${MBOT_CALIBRATE_OMNI} 0)
   pico_add_extra_outputs(${MBOT_CALIBRATE_OMNI})
@@ -180,10 +184,21 @@ elseif(MBOT_TYPE STREQUAL "OMNI")
     hardware_adc
     rclib
   )
+  target_compile_definitions(mbot_omni_motor_test PRIVATE MBOT_TYPE_OMNI)
   pico_enable_stdio_usb(mbot_omni_motor_test 1)
   pico_enable_stdio_uart(mbot_omni_motor_test 0)
   pico_add_extra_outputs(mbot_omni_motor_test)
+endif()
 
+if(NOT MBOT_TYPE OR MBOT_TYPE STREQUAL "BALBOT")
+  # MBOT Balbot
+  set(MBOT_BALBOT mbot_balbot${NAME_SUFFIX})
+  add_executable(${MBOT_BALBOT}
+    src/mbot_comms.c
+    src/mbot_balbot.c
+  )
+  configure_mbot(${MBOT_BALBOT})
+  target_compile_definitions(${MBOT_BALBOT} PRIVATE MBOT_TYPE_BALBOT)
 endif()
 
 # Encoder Test - Both types.

@@ -12,10 +12,10 @@ pwm = 0.5
 move_time = 5
 
 command = mbot_motor_pwm_t() # A twist2D_t command encodes forward and rotational speeds of the bot
+command.utime = int(time.time() * 1e6)
 command.pwm[0] = pwm
 command.pwm[1] = pwm
 command.pwm[2] = pwm
-
 lc.publish("MBOT_MOTOR_PWM_CMD",command.encode())
 time.sleep(move_time)
 
