@@ -289,36 +289,60 @@ static void _sensors_callback_mag(bhy_data_generic_t * sensor_data, bhy_virtual_
 
 // implementation of extern function in bosch IMU code
 int8_t sensor_i2c_write(uint8_t addr, uint8_t reg, uint8_t *p_buf, uint16_t size)
-{    
-    // this is inefficient - shouldnt copy data into a buffer
-    // am doing now for ease of debug
-    uint8_t buf[size+1];
-	buf[0] = reg;
-	for(int i=0; i<size; i++) buf[i+1]=p_buf[i];
-
-	if(i2c_write_blocking(i2c, addr, &buf[0], size+1, false) == PICO_ERROR_GENERIC){
-		printf("ERROR: failed to write to bosch IMU!\n");
-		return -1;
-	}
-
+{
+    // temporary buffer with register address + data
+    uint8_t buf[size + 1];
+    buf[0] = reg;
+    for (int i = 0; i < size; i++) {
+        buf[i + 1] = p_buf[i];
+    }
+    // set a reasonable timeout (in microseconds)
+    const uint32_t I2C_TIMEOUT_US = 100000;  // 100 ms
+    int written = i2c_write_timeout_us(i2c, addr, buf, size + 1, false, I2C_TIMEOUT_US);
+    if (written == PICO_ERROR_GENERIC) {
+        printf("ERROR: failed to write to Bosch IMU (NACK or bus error)\n");
+        return -1;
+    } else if (written == PICO_ERROR_TIMEOUT) {
+        printf("ERROR: I2C write to Bosch IMU timed out after %u us\n", I2C_TIMEOUT_US);
+        return -1;
+    } else if (written != (size + 1)) {
+        printf("WARNING: Partial I2C write (%d/%d bytes)\n", written, size + 1);
+        return -1;
+    }
     return 0;
 }
 
 // implementation of extern function in bosch IMU code
 int8_t sensor_i2c_read(uint8_t addr, uint8_t reg, uint8_t *p_buf, uint16_t size)
 {
-    if(i2c_write_blocking(i2c, addr, &reg, 1, true) == PICO_ERROR_GENERIC){
-		return -1;
-	}
+    // Use timeout variants to avoid blocking forever if the bus is held
+    const uint32_t I2C_TIMEOUT_US = 100000; // 100 ms
 
-    int bytes_read = i2c_read_blocking(i2c, addr, p_buf, size, false);
-    //printf("read %d bytes, expected %d\r\n", bytes_read, size);
-   
-    if( bytes_read == PICO_ERROR_GENERIC){
-		return -1;
-	}
-    else if(bytes_read != size){
+    int written = i2c_write_timeout_us(i2c, addr, &reg, 1, true, I2C_TIMEOUT_US);
+    if (written == PICO_ERROR_GENERIC) {
+        // NACK or bus error when sending register address
+        // printf could be added for debug but keep it lightweight here
+        return -1;
+    } else if (written == PICO_ERROR_TIMEOUT) {
+        printf("ERROR: I2C write (register) to Bosch IMU timed out after %u us\n", I2C_TIMEOUT_US);
+        return -1;
+    } else if (written != 1) {
+        printf("WARNING: Partial I2C write when sending register (%d/1 bytes)\n", written);
         return -1;
     }
-	return 0;
+
+    int bytes_read = i2c_read_timeout_us(i2c, addr, p_buf, size, false, I2C_TIMEOUT_US);
+    // printf("read %d bytes, expected %d\r\n", bytes_read, size);
+
+    if (bytes_read == PICO_ERROR_GENERIC) {
+        return -1;
+    } else if (bytes_read == PICO_ERROR_TIMEOUT) {
+        printf("ERROR: I2C read from Bosch IMU timed out after %u us\n", I2C_TIMEOUT_US);
+        return -1;
+    } else if (bytes_read != size) {
+        printf("WARNING: Partial I2C read (%d/%d bytes)\n", bytes_read, size);
+        return -1;
+    }
+
+    return 0;
 }
