@@ -28,6 +28,8 @@ int mbot_init_hardware(void);
 
 bool mbot_loop(repeating_timer_t *rt)
 {
+    static uint32_t loop_count = 0;
+
     global_utime = to_us_since_boot(get_absolute_time()) + timestamp_offset;
 
     int64_t encoder_delta_time = global_utime - mbot_balbot_feedback.utime;
@@ -55,6 +57,16 @@ bool mbot_loop(repeating_timer_t *rt)
     mbot_balbot_feedback.imu_angles_rpy[0] = mbot_imu_data.rpy[0];
     mbot_balbot_feedback.imu_angles_rpy[1] = mbot_imu_data.rpy[1];
     mbot_balbot_feedback.imu_angles_rpy[2] = mbot_imu_data.rpy[2];
+
+    // log CSV at ~10 Hz (every 20 iterations at 200 Hz) for rpy comparison
+    // format: timestamp_us,native_r,native_p,native_y,quat_r,quat_p,quat_y
+    if(loop_count % 20 == 0){
+        printf("%llu,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f\n",
+            (unsigned long long)global_utime,
+            mbot_imu_data.rpy[0], mbot_imu_data.rpy[1], mbot_imu_data.rpy[2],
+            mbot_imu_data.rpy_from_quat[0], mbot_imu_data.rpy_from_quat[1], mbot_imu_data.rpy_from_quat[2]);
+    }
+    loop_count++;
 
     // only run if we've got 2 way communication...
     if (global_comms_status == COMMS_OK)
@@ -139,6 +151,8 @@ int mbot_init_hardware(void){
     // Initialize the IMU
     mbot_imu_config = mbot_imu_default_config();
     mbot_imu_config.sample_rate = 200;
+    mbot_imu_config.enable_mag = 0;
+    mbot_imu_config.compare_rpy = 1;
     printf("Initializing IMU...\n");
     mbot_imu_init(&mbot_imu_data, mbot_imu_config);
 

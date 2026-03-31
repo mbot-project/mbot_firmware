@@ -41,6 +41,7 @@ typedef struct mbot_bhy_data_t{
 	float mag[3];		///< magnetometer (XYZ) in units of uT
     float quat[4];	    ///< normalized quaternion from Fuser Core
 	float rpy[3];       ///< Roll(x) pitch(Y) yaw(Z) in radians from Fuser Core
+    float rpy_from_quat[3]; ///< Roll(x) pitch(Y) yaw(Z) in radians computed from quaternion (no mag)
     int16_t quat_qlty;  ///< quality estimate from Fuser Core
 	///@}
 
@@ -66,6 +67,7 @@ typedef struct mbot_bhy_config_t{
 	int8_t enable_mag;
 	int8_t enable_rpy;
 	int8_t enable_quat;
+	int8_t compare_rpy; // if 1 (with enable_mag=0), enables mag+orientation for rpy[] and game rotation vector for rpy_from_quat[] simultaneously
 } mbot_bhy_config_t;
 
 typedef struct bhy_calib_param_t

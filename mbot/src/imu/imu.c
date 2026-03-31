@@ -19,6 +19,7 @@ static uint16_t numsample = 0;
 void _imu_callback(uint gpio, uint32_t events);
 void _bhy_dump_status(void);
 static void _sensors_callback_quaternion(bhy_data_generic_t * sensor_data, bhy_virtual_sensor_t sensor_id);
+static void _sensors_callback_quaternion_no_mag(bhy_data_generic_t * sensor_data, bhy_virtual_sensor_t sensor_id);
 static void _sensors_callback_orientation(bhy_data_generic_t * sensor_data, bhy_virtual_sensor_t sensor_id);
 static void _sensors_callback_accel(bhy_data_generic_t * sensor_data, bhy_virtual_sensor_t sensor_id);
 static void _sensors_callback_gyro(bhy_data_generic_t * sensor_data, bhy_virtual_sensor_t sensor_id);
@@ -157,12 +158,26 @@ int mbot_imu_init(mbot_bhy_data_t * data, mbot_bhy_config_t config){
     }
     else if(config.enable_quat && !config.enable_mag){
         bhy_enable_virtual_sensor(VS_TYPE_GAME_ROTATION_VECTOR, 0, config.sample_rate, 0, 0, 0, 0);
-        if(bhy_install_sensor_callback(VS_TYPE_GAME_ROTATION_VECTOR, 0, _sensors_callback_quaternion)){
+        if(bhy_install_sensor_callback(VS_TYPE_GAME_ROTATION_VECTOR, 0, _sensors_callback_quaternion_no_mag)){
             printf("Failed to install sensor callback\n");
             return -1;
         }
     }
     if(config.enable_rpy && config.enable_mag){
+        bhy_enable_virtual_sensor(VS_TYPE_ORIENTATION, 0, config.sample_rate, 0, 0, 0, 0);
+        if(bhy_install_sensor_callback(VS_TYPE_ORIENTATION, 0, _sensors_callback_orientation)){
+            printf("Failed to install sensor callback\n");
+            return -1;
+        }
+    }
+
+    if(config.compare_rpy && !config.enable_mag){
+        // bring up mag and orientation as the native RPY baseline for comparison
+        bhy_enable_virtual_sensor(VS_TYPE_GEOMAGNETIC_FIELD, 0, config.sample_rate, 0, 0, 0, 0);
+        if(bhy_install_sensor_callback(VS_TYPE_GEOMAGNETIC_FIELD, 0, _sensors_callback_mag)){
+            printf("Failed to install sensor callback\n");
+            return -1;
+        }
         bhy_enable_virtual_sensor(VS_TYPE_ORIENTATION, 0, config.sample_rate, 0, 0, 0, 0);
         if(bhy_install_sensor_callback(VS_TYPE_ORIENTATION, 0, _sensors_callback_orientation)){
             printf("Failed to install sensor callback\n");
@@ -226,6 +241,35 @@ static void _sensors_callback_quaternion(bhy_data_generic_t * sensor_data, bhy_v
     data_ptr->quat[1] = (float)data_ptr->raw_quat[1] * data_ptr->quat_to_norm;
     data_ptr->quat[2] = (float)data_ptr->raw_quat[2] * data_ptr->quat_to_norm;
     data_ptr->quat[3] = (float)data_ptr->raw_quat[3] * data_ptr->quat_to_norm;
+}
+
+/*!
+ * @brief Callback for VS_TYPE_GAME_ROTATION_VECTOR (accel + gyro, no magnetometer).
+ *        Stores quaternion data and computes RPY into rpy_from_quat[].
+ *
+ * @param[in]   sensor_data
+ * @param[in]   sensor_id
+ */
+static void _sensors_callback_quaternion_no_mag(bhy_data_generic_t * sensor_data, bhy_virtual_sensor_t sensor_id)
+{
+    data_ptr->raw_quat[0] = sensor_data->data_quaternion.w;
+    data_ptr->raw_quat[1] = sensor_data->data_quaternion.x;
+    data_ptr->raw_quat[2] = sensor_data->data_quaternion.y;
+    data_ptr->raw_quat[3] = sensor_data->data_quaternion.z;
+    data_ptr->quat_qlty = sensor_data->data_quaternion.estimated_accuracy;
+    data_ptr->quat[0] = (float)data_ptr->raw_quat[0] * data_ptr->quat_to_norm;
+    data_ptr->quat[1] = (float)data_ptr->raw_quat[1] * data_ptr->quat_to_norm;
+    data_ptr->quat[2] = (float)data_ptr->raw_quat[2] * data_ptr->quat_to_norm;
+    data_ptr->quat[3] = (float)data_ptr->raw_quat[3] * data_ptr->quat_to_norm;
+
+    // Compute RPY from normalized quaternion [w, x, y, z]
+    float w = data_ptr->quat[0];
+    float x = data_ptr->quat[1];
+    float y = data_ptr->quat[2];
+    float z = data_ptr->quat[3];
+    data_ptr->rpy_from_quat[0] = atan2f(2.0f*(w*x + y*z), 1.0f - 2.0f*(x*x + y*y)); // roll
+    data_ptr->rpy_from_quat[1] = asinf( 2.0f*(w*y - z*x));                            // pitch
+    data_ptr->rpy_from_quat[2] = atan2f(2.0f*(w*z + x*y), 1.0f - 2.0f*(y*y + z*z)); // yaw
 }
 
 /*!
