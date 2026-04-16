@@ -240,9 +240,9 @@ void mbot_read_imu(serial_mbot_imu_t *imu){
     imu->mag[0] = mbot_imu_data.mag[0];
     imu->mag[1] = mbot_imu_data.mag[1];
     imu->mag[2] = mbot_imu_data.mag[2];
-    imu->angles_rpy[0] = mbot_imu_data.rpy[0];
-    imu->angles_rpy[1] = mbot_imu_data.rpy[1];
-    imu->angles_rpy[2] = mbot_imu_data.rpy[2];
+    imu->angles_rpy[0] = mbot_imu_data.rpy_from_quat[0];
+    imu->angles_rpy[1] = mbot_imu_data.rpy_from_quat[1];
+    imu->angles_rpy[2] = mbot_imu_data.rpy_from_quat[2];
     imu->angles_quat[0] = mbot_imu_data.quat[0];
     imu->angles_quat[1] = mbot_imu_data.quat[1];
     imu->angles_quat[2] = mbot_imu_data.quat[2];

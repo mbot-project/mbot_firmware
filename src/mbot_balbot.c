@@ -52,9 +52,9 @@ bool mbot_loop(repeating_timer_t *rt)
     // last channel is battery voltage (has 5x divider)
     mbot_balbot_feedback.volts[3] = 5.0 * conversion_factor * raw;
 
-    mbot_balbot_feedback.imu_angles_rpy[0] = mbot_imu_data.rpy[0];
-    mbot_balbot_feedback.imu_angles_rpy[1] = mbot_imu_data.rpy[1];
-    mbot_balbot_feedback.imu_angles_rpy[2] = mbot_imu_data.rpy[2];
+    mbot_balbot_feedback.imu_angles_rpy[0] = mbot_imu_data.rpy_from_quat[0];
+    mbot_balbot_feedback.imu_angles_rpy[1] = mbot_imu_data.rpy_from_quat[1];
+    mbot_balbot_feedback.imu_angles_rpy[2] = mbot_imu_data.rpy_from_quat[2];
 
     // only run if we've got 2 way communication...
     if (global_comms_status == COMMS_OK)

@@ -41,6 +41,7 @@ typedef struct mbot_bhy_data_t{
 	float mag[3];		///< magnetometer (XYZ) in units of uT
     float quat[4];	    ///< normalized quaternion from Fuser Core
 	float rpy[3];       ///< Roll(x) pitch(Y) yaw(Z) in radians from Fuser Core
+    float rpy_from_quat[3]; ///< Roll(x) pitch(Y) yaw(Z) in radians computed from quaternion (no mag)
     int16_t quat_qlty;  ///< quality estimate from Fuser Core
 	///@}
 
